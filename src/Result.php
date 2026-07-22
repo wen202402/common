@@ -1,6 +1,6 @@
 <?php
 
-namespace fater\common;
+namespace wen202402\common;
 
 class Result{
     public $code=0;

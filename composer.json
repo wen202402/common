@@ -1,5 +1,5 @@
 {
-  "name": "fater/common",
+  "name": "wen202402/common",
   "type": "library",
   "description": "A small PHP library",
   "license": "MIT",
@@ -12,7 +12,7 @@
   },
   "autoload": {
     "psr-4": {
-      "fater\\common\\": "src/"
+      "wen202402\\common\\": "src/"
     }
   },
   "provide": {
