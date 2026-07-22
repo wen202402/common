@@ -1,0 +1,69 @@
+<div>
+    <div id="ws-status">连接中</div>
+    <pre id="ws-data"></pre>
+</div>
+
+<script>
+    let socket = null;
+    let heartbeatTimer = null;
+    let reconnectTimer = null;
+
+    const statusElement = document.getElementById('ws-status');
+    const dataElement = document.getElementById('ws-data');
+
+    function connectWebSocket() {
+        if (
+            socket &&
+            (
+                socket.readyState === WebSocket.OPEN ||
+                socket.readyState === WebSocket.CONNECTING
+            )
+        ) {
+            return;
+        }
+
+        socket = new WebSocket('ws://127.0.0.1:38000');
+
+        socket.onopen = function() {
+            statusElement.textContent = '已连接';
+            socket.send(JSON.stringify({type: 'realtime.get'}));
+
+            clearInterval(heartbeatTimer);
+
+            heartbeatTimer = setInterval(function() {
+                if (socket.readyState !== WebSocket.OPEN) return;
+                socket.send(JSON.stringify({type: 'ping', timestamp: Date.now()}));
+            }, 25000);
+        };
+
+        socket.onmessage = function(event) {
+            let message;
+            try {
+                message = JSON.parse(event.data);
+            } catch (error) {
+                console.error('WebSocket JSON 解析失败', event.data);
+                return;
+            }
+
+            if (message.type === 'realtime.snapshot' || message.type === 'realtime.update') dataElement.textContent = JSON.stringify(message.data, null, 2);
+
+            if (message.type === 'realtime.error') console.error(message.message);
+
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket 连接错误', error);
+        };
+
+        socket.onclose = function() {
+            statusElement.textContent = '连接已断开，3 秒后重连';
+
+            clearInterval(heartbeatTimer);
+            clearTimeout(reconnectTimer);
+
+            reconnectTimer = setTimeout(function() {connectWebSocket();}, 3000);
+        };
+    }
+
+    connectWebSocket();
+</script>
