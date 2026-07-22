@@ -8,8 +8,7 @@ use Swoole\Coroutine\Http\Client;
 use Swoole\Coroutine\Channel;
 use function Swoole\Coroutine\run;
 
-class SwooleStressTester
-{
+class SwooleStressTester{
     public string $targetHost = '127.0.0.1';
     public int $targetPort = 48000;
     public bool $sslEnable = false;
