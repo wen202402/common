@@ -1,6 +1,6 @@
 <?php
 
-namespace wen202402\common;
+namespace wen202402\common\helper;
 
 
 

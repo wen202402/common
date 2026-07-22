@@ -1,6 +1,5 @@
 <?php
-
-namespace wen202402\common;
+namespace wen202402\common\struct;
 
 class Result{
     public $code=0;

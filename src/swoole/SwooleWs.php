@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace wen202402\common;
+namespace wen202402\common\swoole;
 
 
+use wen202402\common\struct\Result;
 use Yii;
 use JsonException;
 use Swoole\Http\Request;
