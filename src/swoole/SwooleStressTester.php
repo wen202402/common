@@ -1,0 +1,180 @@
+<?php
+
+namespace wen202402\common\swoole;
+
+use Swoole\Coroutine;
+
+use Swoole\Coroutine\Http\Client;
+use Swoole\Coroutine\Channel;
+use function Swoole\Coroutine\run;
+
+class SwooleStressTester
+{
+    public string $targetHost = '127.0.0.1';
+    public int $targetPort = 48000;
+    public bool $sslEnable = false;
+
+    public int $totalUsers = 20000;
+    public int $concurrency = 1000;
+
+    public float $thinkMinSec = 0.1;
+    public float $thinkMaxSec = 0.5;
+    public float $browseMinSec = 0.2;
+    public float $browseMaxSec = 0.8;
+
+    public int $timeoutSec = 10;
+
+    private string $loginUrl = '/login/login/login';
+
+    private RsaHelper $rsa;
+
+    // 回调：注入后由外部实现 login/browse/createOrder 的具体逻辑
+    private $loginCb;    // function(Client $client, array $headers, string $userId): array
+    private $browseCb;   // function(Client $client, array $headers): array
+    private $orderCb;    // function(Client $client, array $headers): array
+
+    private array $loginForm = [
+        'username' => '8619999888898',
+        'password' => '11112222',
+        'system' => 'web',
+        'area' => '86',
+        'device_code' => 'node_test_device_666888999',
+        'version' => '2.1.0',
+        'manufacturer' => 'Xiaomi Corporation',
+        'model' => 'Mi 13 Ultra Pro Max Plus',
+        'mac' => '00:1A:2B:3C:4D:5E',
+        'disk' => '512GB',
+        'memory' => '16GB',
+        'timezone' => 'Asia/Shanghai',
+        'release' => '14.0.0',
+    ];
+
+    private array $stats = [
+        'total' => 0,
+        'success' => 0,
+        'failed' => 0,
+        'steps' => []
+    ];
+
+    public function __construct(array $config = [])
+    {
+        ini_set('memory_limit', '2048M');
+
+
+        foreach ($config as $k => $v) {
+            if (property_exists($this, $k)) {
+                $this->$k = $v;
+            }
+        }
+
+
+
+        // 也允许注入回调
+        $this->loginCb = $config['loginCb'] ?? null;
+        $this->browseCb = $config['browseCb'] ?? null;
+        $this->orderCb = $config['orderCb'] ?? null;
+    }
+
+    private function randFloat(float $min, float $max): float
+    {
+        $scaledMin = (int)round($min * 1000);
+        $scaledMax = (int)round($max * 1000);
+        return rand($scaledMin, $scaledMax) / 1000;
+    }
+
+    private function baseHeaders(string $virtualIp): array
+    {
+        return [
+            'Host' => $this->targetHost,
+            'User-Agent' => 'SwooleStressTester/1.0',
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'api/web',
+            'Accept-Language' => 'zh',
+            'v' => '1',
+            'X-Forwarded-For' => $virtualIp,
+            'X-Real-IP' => $virtualIp,
+        ];
+    }
+//        Coroutine::sleep($this->randFloat($this->thinkMinSec, $this->thinkMaxSec));
+
+
+    public function runUserJourney(Client $client, array $headers, int $userId): array{
+
+        return [];
+    }
+
+    private function simulateUserJourney(int $userId, string $virtualIp): array{
+        $client = new Client($this->targetHost, $this->targetPort, $this->sslEnable);
+        $client->set(['timeout' => $this->timeoutSec, 'keep_alive' => true]);
+
+        try {
+
+
+            return call_user_func([$this, 'runUserJourney'], $client, $this->baseHeaders($virtualIp), $userId);
+        } catch (\Throwable $e) {
+            return ['status' => false, 'step' => 'exception', 'code' => $e->getCode(), 'msg' => $e->getMessage()];
+        } finally {
+            $client->close();
+        }
+    }
+
+    public function run(): void
+    {
+        echo "=== 开始 Swoole 压测方案 ===" . PHP_EOL;
+        echo "目标: {$this->targetHost}:{$this->targetPort}" . PHP_EOL;
+        echo "总模拟用户数: {$this->totalUsers} | 最大并发窗口: {$this->concurrency}" . PHP_EOL;
+
+        $startTime = microtime(true);
+        $channel = new Channel($this->concurrency);
+
+        run(function () use ($channel, &$startTime) {
+            for ($i = 1; $i <= $this->totalUsers; $i++) {
+                $channel->push(true);
+
+                $virtualIp = sprintf(
+                    "10.%d.%d.%d",
+                    ($i >> 16) & 255,
+                    ($i >> 8) & 255,
+                    $i & 255
+                );
+
+                Coroutine::create(function () use ($i, $virtualIp, $channel) {
+                    $result = $this->simulateUserJourney($i, $virtualIp);
+
+                    $this->stats['total']++;
+
+                    if (($result['status'] ?? false) === true) {
+                        $this->stats['success']++;
+                    } else {
+                        $this->stats['failed']++;
+                        $stepKey = ($result['step'] ?? 'unknown') . '_err_' . ($result['code'] ?? 'unknown');
+                        $this->stats['steps'][$stepKey] = ($this->stats['steps'][$stepKey] ?? 0) + 1;
+                    }
+
+                    $channel->pop();
+                });
+            }
+
+            while ($channel->stats()['queue_num'] > 0) {
+                Coroutine::sleep(0.1);
+            }
+        });
+
+        $costTime = round(microtime(true) - $startTime, 2);
+
+        echo PHP_EOL . "=== 压测结果汇总 ===" . PHP_EOL;
+        echo "总耗时: {$costTime} 秒" . PHP_EOL;
+        echo "请求并发/用户数: " . $this->stats['total'] . PHP_EOL;
+        echo "成功完成全流程: " . $this->stats['success'] . PHP_EOL;
+        echo "失败用户数: " . $this->stats['failed'] . PHP_EOL;
+
+        $qps = $costTime > 0 ? round(($this->stats['total'] * 3) / $costTime, 2) : 0;
+        echo "QPS (平均估算): {$qps} req/s" . PHP_EOL;
+
+        if (!empty($this->stats['steps'])) {
+            echo PHP_EOL . "失败节点拆分:" . PHP_EOL;
+            print_r($this->stats['steps']);
+        }
+    }
+}
