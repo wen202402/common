@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace wen202402\common;
 
 
-
+use Yii;
 use JsonException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -11,9 +11,9 @@ use Swoole\Timer;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
 use Throwable;
-use Yii;
 
-final class SwooleWs{
+
+class SwooleWs{
     const WS_HOST = '0.0.0.0';
     const WS_PORT = 9502;
     const WS_REFRESH_INTERVAL = 300*1000;
