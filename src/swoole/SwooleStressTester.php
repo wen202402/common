@@ -24,7 +24,7 @@ class SwooleStressTester{
 
 
 
-    private array $stats = [
+    public array $stats = [
         'total' => 0,
         'success' => 0,
         'failed' => 0,
@@ -40,14 +40,13 @@ class SwooleStressTester{
 
     }
 
-    private function randFloat(float $min, float $max): float{
+    public function randFloat(float $min, float $max): float{
         $scaledMin = (int)round($min * 1000);
         $scaledMax = (int)round($max * 1000);
         return rand($scaledMin, $scaledMax) / 1000;
     }
 
-    private function baseHeaders(string $virtualIp): array
-    {
+    public function baseHeaders(string $virtualIp): array{
         return [
             'Host' => $this->targetHost,
             'User-Agent' => 'SwooleStressTester/1.0',
@@ -68,7 +67,7 @@ class SwooleStressTester{
         return [];
     }
 
-    private function simulateUserJourney(int $userId, string $virtualIp): array{
+    public function simulateUserJourney(int $userId, string $virtualIp): array{
         $client = new Client($this->targetHost, $this->targetPort, $this->sslEnable);
         $client->set(['timeout' => $this->timeoutSec, 'keep_alive' => true]);
 
