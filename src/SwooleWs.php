@@ -14,15 +14,14 @@ use Throwable;
 
 
 class SwooleWs{
-    const WS_HOST = '0.0.0.0';
-    const WS_PORT = 9502;
-    const WS_REFRESH_INTERVAL = 300*1000;
+    public $host = '0.0.0.0';
+    public $port = 9502;
+    public $wtime = 300*1000;
 
     private Server $server;
 
 
-    const CACHE_KEY = 'ws:realtime:data:v1';
-    const CACHE_DURATION = 60*2;
+
 
 
 
@@ -47,7 +46,7 @@ class SwooleWs{
     ];
     public function __construct(){
 
-        $this->server = new Server(self::WS_HOST, self::WS_PORT, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+        $this->server = new Server($this->host, $this->port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
         $this->server->set($this->option);
 
@@ -87,7 +86,7 @@ class SwooleWs{
 
 
     public function onStart(Server $server): void{
-        echo sprintf("WebSocket started: ws://127.0.0.1:%d\n", self::WS_PORT);
+        echo sprintf("WebSocket started: ws://127.0.0.1:%d\n", $this->port);
     }
 
 
@@ -108,7 +107,7 @@ class SwooleWs{
             echo sprintf("[%s] initial cache refresh failed: %s\n", date('Y-m-d H:i:s'), $e->getMessage());
         }
 
-        Timer::tick(self::WS_REFRESH_INTERVAL, function () use ($server): void {
+        Timer::tick($this->wtime, function () use ($server): void {
             try {
 
                 echo sprintf("[%s] refresh success, pushed=%d\n", date('Y-m-d H:i:s'), $count = $this->broadcast($server, ['type' => 'realtime.update', 'data' =>  $data = static::refreshCache(), 'timestamp' => time(),]));
