@@ -17,37 +17,13 @@ class SwooleStressTester
     public int $totalUsers = 20000;
     public int $concurrency = 1000;
 
-    public float $thinkMinSec = 0.1;
-    public float $thinkMaxSec = 0.5;
-    public float $browseMinSec = 0.2;
-    public float $browseMaxSec = 0.8;
+
 
     public int $timeoutSec = 10;
 
-    private string $loginUrl = '/login/login/login';
 
-    private RsaHelper $rsa;
 
-    // 回调：注入后由外部实现 login/browse/createOrder 的具体逻辑
-    private $loginCb;    // function(Client $client, array $headers, string $userId): array
-    private $browseCb;   // function(Client $client, array $headers): array
-    private $orderCb;    // function(Client $client, array $headers): array
 
-    private array $loginForm = [
-        'username' => '8619999888898',
-        'password' => '11112222',
-        'system' => 'web',
-        'area' => '86',
-        'device_code' => 'node_test_device_666888999',
-        'version' => '2.1.0',
-        'manufacturer' => 'Xiaomi Corporation',
-        'model' => 'Mi 13 Ultra Pro Max Plus',
-        'mac' => '00:1A:2B:3C:4D:5E',
-        'disk' => '512GB',
-        'memory' => '16GB',
-        'timezone' => 'Asia/Shanghai',
-        'release' => '14.0.0',
-    ];
 
     private array $stats = [
         'total' => 0,
@@ -56,27 +32,16 @@ class SwooleStressTester
         'steps' => []
     ];
 
-    public function __construct(array $config = [])
-    {
+    public function __construct(array $config = []){
         ini_set('memory_limit', '2048M');
 
-
-        foreach ($config as $k => $v) {
-            if (property_exists($this, $k)) {
-                $this->$k = $v;
-            }
-        }
+        foreach ($config as $k => $v) if (property_exists($this, $k)) $this->$k = $v;
 
 
 
-        // 也允许注入回调
-        $this->loginCb = $config['loginCb'] ?? null;
-        $this->browseCb = $config['browseCb'] ?? null;
-        $this->orderCb = $config['orderCb'] ?? null;
     }
 
-    private function randFloat(float $min, float $max): float
-    {
+    private function randFloat(float $min, float $max): float{
         $scaledMin = (int)round($min * 1000);
         $scaledMax = (int)round($max * 1000);
         return rand($scaledMin, $scaledMax) / 1000;
@@ -109,8 +74,6 @@ class SwooleStressTester
         $client->set(['timeout' => $this->timeoutSec, 'keep_alive' => true]);
 
         try {
-
-
             return call_user_func([$this, 'runUserJourney'], $client, $this->baseHeaders($virtualIp), $userId);
         } catch (\Throwable $e) {
             return ['status' => false, 'step' => 'exception', 'code' => $e->getCode(), 'msg' => $e->getMessage()];
@@ -119,10 +82,8 @@ class SwooleStressTester
         }
     }
 
-    public function run(): void
-    {
-        echo "=== 开始 Swoole 压测方案 ===" . PHP_EOL;
-        echo "目标: {$this->targetHost}:{$this->targetPort}" . PHP_EOL;
+    public function run(): void{
+
         echo "总模拟用户数: {$this->totalUsers} | 最大并发窗口: {$this->concurrency}" . PHP_EOL;
 
         $startTime = microtime(true);
@@ -132,21 +93,15 @@ class SwooleStressTester
             for ($i = 1; $i <= $this->totalUsers; $i++) {
                 $channel->push(true);
 
-                $virtualIp = sprintf(
-                    "10.%d.%d.%d",
-                    ($i >> 16) & 255,
-                    ($i >> 8) & 255,
-                    $i & 255
-                );
+                $virtualIp = sprintf("10.%d.%d.%d", ($i >> 16) & 255, ($i >> 8) & 255, $i & 255);
 
                 Coroutine::create(function () use ($i, $virtualIp, $channel) {
                     $result = $this->simulateUserJourney($i, $virtualIp);
 
                     $this->stats['total']++;
 
-                    if (($result['status'] ?? false) === true) {
-                        $this->stats['success']++;
-                    } else {
+                    if (($result['status'] ?? false) === true) $this->stats['success']++;
+                    else {
                         $this->stats['failed']++;
                         $stepKey = ($result['step'] ?? 'unknown') . '_err_' . ($result['code'] ?? 'unknown');
                         $this->stats['steps'][$stepKey] = ($this->stats['steps'][$stepKey] ?? 0) + 1;
@@ -156,9 +111,8 @@ class SwooleStressTester
                 });
             }
 
-            while ($channel->stats()['queue_num'] > 0) {
-                Coroutine::sleep(0.1);
-            }
+            while ($channel->stats()['queue_num'] > 0) Coroutine::sleep(0.1);
+
         });
 
         $costTime = round(microtime(true) - $startTime, 2);
@@ -172,9 +126,9 @@ class SwooleStressTester
         $qps = $costTime > 0 ? round(($this->stats['total'] * 3) / $costTime, 2) : 0;
         echo "QPS (平均估算): {$qps} req/s" . PHP_EOL;
 
-        if (!empty($this->stats['steps'])) {
-            echo PHP_EOL . "失败节点拆分:" . PHP_EOL;
-            print_r($this->stats['steps']);
-        }
+        if (empty($this->stats['steps'])) return;
+        echo PHP_EOL . "失败节点拆分:" . PHP_EOL;
+        print_r($this->stats['steps']);
+
     }
 }
