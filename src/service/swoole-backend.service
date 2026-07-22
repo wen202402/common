@@ -1,0 +1,14 @@
+[Unit]
+Description=swoole-backend
+After=network.target
+
+[Service]
+User=www
+Group=www
+Environment="disable_functions=readdir,delfile,fileperms,copy,opendir,closedir,dir,chmod,mkdir,rmdir,unlink,putenv,passthru,system,chroot,chgrp,chown,shell_exec,popen,pcntl_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,imap_open,apache_setenv"
+ExecStart=php -ddisable_functions=${disable_functions} /www/wwwroot/admin/php/swoole-backend.php
+StandardOutput=file:/tmp/swoole-backend.log
+StandardError=file:/tmp/swoole-backend.error.log
+
+[Install]
+WantedBy=multi-user.target
