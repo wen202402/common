@@ -15,7 +15,7 @@ use Throwable;
 
 class SwooleWs{
     public $host = '0.0.0.0';
-    public $port = 9502;
+    public $port = 38000;
     public $wtime = 300*1000;
 
     private Server $server;
