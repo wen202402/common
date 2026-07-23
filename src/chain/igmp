@@ -1,0 +1,8 @@
+sudo apt-get update  -y
+sudo apt-get install -y php8.1-gmp
+sudo systemctl restart php8.1-fpm
+#sudo apk add --no-cache php81-gmp
+php -m | grep -i gmp
+php -r "echo function_exists('gmp_init') ? 'gmp ok' : 'gmp missing';"
+mv /etc/php/8.1/mods-available/gmp.ini /usr/local/php/conf.d/gmp.ini
+sudo mv /usr/lib/php/20210902/gmp.so /usr/local/php/lib/php/extensions/no-debug-non-zts-20210902/gmp.so
