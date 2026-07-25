@@ -3,8 +3,6 @@ declare(strict_types=1);
 namespace wen202402\common\swoole;
 
 
-use wen202402\common\struct\Result;
-use Yii;
 use JsonException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -12,6 +10,8 @@ use Swoole\Timer;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
 use Throwable;
+use wen202402\common\struct\Result;
+use Yii;
 
 
 class SwooleWs{

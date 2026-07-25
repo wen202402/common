@@ -3,9 +3,8 @@
 namespace wen202402\common\swoole;
 
 use Swoole\Coroutine;
-
-use Swoole\Coroutine\Http\Client;
 use Swoole\Coroutine\Channel;
+use Swoole\Coroutine\Http\Client;
 use function Swoole\Coroutine\run;
 
 class SwooleStressTester{
