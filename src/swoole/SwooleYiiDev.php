@@ -124,12 +124,16 @@ class SwooleYiiDev extends BaseObject{
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
 
 
-
+        try {
 
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
         Yii::$app->run();
+        } catch (Throwable $e) {
+            if (Yii::$app && Yii::$app->errorHandler) Yii::$app->errorHandler->handleException($e);
 
+
+        }
     }
 
 
