@@ -102,11 +102,14 @@ class SwooleYiiDev extends BaseObject{
     }
 
     public function onWorkerStart(\Swoole\Http\Server $server, $workerId){
-
+        try{
         $_SERVER['SCRIPT_NAME']     =   $scriptName =  '/index.php';
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
          new \yii\web\Application($this->app);
-
+        }catch(\Throwable $e){
+            fwrite(STDERR, (string)$e);
+            exit(1);
+        }
 
 
 
