@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 
 /*
  $docrootx = dirname(__DIR__,2) ;
- $server = new SwooleYiiBackend(['app' => $app,'document_root'=>$docrootx]);
+ $server = new SwooleYiiDev(['app' => $app,'document_root'=>$docrootx]);
 
 $server->start();*/
 
