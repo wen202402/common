@@ -3,12 +3,12 @@
 namespace wen202402\common\swoole;
 
 use Throwable;
+use wen202402\common\di\Yii;
 use wen202402\common\helper\FileHelper;
-use Yii;
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 
-class SwooleYiiBackend extends BaseObject{
+class SwooleYiiBackendCoroutine extends BaseObject{
     public $host     = '0.0.0.0';
     public $port     = 58000;
     public $mode     = SWOOLE_PROCESS;
@@ -118,13 +118,11 @@ class SwooleYiiBackend extends BaseObject{
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
         $application = new \yii\web\Application($this->app);
         $application->init();
-
-
+        Yii::setApp($application);
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
-        Yii::$app->params['rid'] = bin2hex(random_bytes(8));
         $application->run();
-
+        Yii::$app->response->end();
     }
 
 
