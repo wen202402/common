@@ -122,8 +122,7 @@ class SwooleYiiBackend extends BaseObject{
 
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
-        Yii::$app->params['rid'] = $requestId=bin2hex(random_bytes(8));
-        Yii::$app->request->headers->set('X-Request-Id', $requestId);
+
         $application->run();
 
     }
