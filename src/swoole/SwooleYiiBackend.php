@@ -3,6 +3,7 @@
 namespace wen202402\common\swoole;
 
 use Throwable;
+use wen202402\common\di\Application;
 use wen202402\common\helper\FileHelper;
 use Yii;
 use yii\base\BaseObject;
@@ -116,7 +117,7 @@ class SwooleYiiBackend extends BaseObject{
 
         $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
-        $application = new \yii\web\Application($this->app);
+        $application = new Application($this->app);
         $application->init();
 
 
