@@ -23,7 +23,7 @@ class SwooleYiiApi extends BaseObject{
         'daemonize' => false,                                                                                           //开启进程守护避免代码崩溃后退出
         'enable_static_handler' => true,                                                                               //后端一定要开启
         'document_root' =>   '',
-        'enable_coroutine' => false,
+        'enable_coroutine' => true,
         'open_mqtt_protocol' => false,
         'open_tcp_nodelay' => true,
         'max_request' => 10000,

@@ -22,7 +22,7 @@ class SwooleYiiBackend extends BaseObject{
         'daemonize' => false,                                                                                           //开启进程守护避免代码崩溃后退出
         'enable_static_handler' => true,                                                                               //后端一定要开启
         'document_root' =>   '',
-        'enable_coroutine' => false,
+        'enable_coroutine' => true,
         'open_mqtt_protocol' => false,
         'open_tcp_nodelay' => true,
         'max_request' => 10000,
@@ -122,7 +122,8 @@ class SwooleYiiBackend extends BaseObject{
 
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
-        Yii::$app->params['rid'] = bin2hex(random_bytes(8));
+        Yii::$app->params['rid'] = $requestId=bin2hex(random_bytes(8));
+        Yii::$app->request->headers->set('X-Request-Id', $requestId);
         $application->run();
 
     }
