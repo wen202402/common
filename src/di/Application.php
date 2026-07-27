@@ -32,6 +32,6 @@ class Application extends \yii\web\Application{
         if (YII_ENV_TEST) throw new ExitException($status);
 
 
-       return $status;
+      return $status;
     }
 }
