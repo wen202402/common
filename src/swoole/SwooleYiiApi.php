@@ -123,7 +123,7 @@ class SwooleYiiApi extends BaseObject{
             $application = new \yii\web\Application($this->app);
             $application->init();
 
-            if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
+            if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
             if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
             $application->run();
             if (Yii::$app && Yii::$app->has('session') && Yii::$app->session->getIsActive()) Yii::$app->session->close();

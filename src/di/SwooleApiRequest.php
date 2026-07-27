@@ -13,6 +13,7 @@ class SwooleApiRequest extends \yii\web\Request{
     public $enableCsrfCookie=false;
     public $enableCsrfValidation=false;
     public $enableCookieValidation = false;
+
   //  public $cookieValidationKey="0NKw4OTRRY-z7ygTqXKshbPzJNj14psV";                                                      //   echo Yii::$app->security->generateRandomString(32);
     public $parsers=[
         'application/json' => \yii\web\JsonParser::class,     //   'text/json' => \yii\web\JsonParser::class,
@@ -23,7 +24,7 @@ class SwooleApiRequest extends \yii\web\Request{
     private $_request;
 
 
-
+    private $_document_root;
 
 
 
@@ -68,12 +69,14 @@ class SwooleApiRequest extends \yii\web\Request{
     /**
      * @param \Swoole\Http\Request $request
      */
-    public function setRequest($request){
+    public function setRequest($request, $document_root){
         $this->_request = $request;
+        $this->_document_root = $document_root;
         $this->setupHeaders();
         $this->setupGlobalVars();
-    }
 
+
+    }
 
     protected function setupHeaders(){
         $this->headers->removeAll();

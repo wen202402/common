@@ -16,6 +16,7 @@ class SwooleBackendRequest extends \yii\web\Request{
      * @var \Swoole\Http\Request
      */
     private $_request;
+    private $_document_root;
 
     public $enableCookieValidation = false;
     public $csrfParam = '_csrf-backend';
@@ -38,8 +39,9 @@ class SwooleBackendRequest extends \yii\web\Request{
     /**
      * @param \Swoole\Http\Request $request
      */
-    public function setRequest($request){
+    public function setRequest($request, $document_root){
         $this->_request = $request;
+        $this->_document_root = $document_root;
         $this->setupHeaders();
         $this->setupGlobalVars();
 
@@ -58,24 +60,56 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
-
     protected function setupGlobalVars(): void{
-        $server = $this->_request->server ?? [];
+        $server  = $this->_request->server ?? [];
         $headers = $this->_request->header ?? [];
 
-        $get = $this->_request->get ?? [];
-        $post = $this->_request->post ?? [];
+        $get   = $this->_request->get ?? [];
+        $post  = $this->_request->post ?? [];
         $files = $this->_request->files ?? [];
         $cookies = $this->_request->cookie ?? [];
+
         $_GET = $get;
         $_POST = $post;
         $_FILES = $files;
         $_COOKIE = $cookies;
         $_SERVER = [];
 
+
         foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
+
         foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
+
+
+
+        $_SERVER['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'] ?? ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '') !== '' ? explode(',', (string)$_SERVER['HTTP_X_FORWARDED_FOR'])[0] : ($_SERVER['REMOTE_PORT'] ? '127.0.0.1' : '127.0.0.1');
+
+        $_SERVER['REMOTE_PORT'] = $_SERVER['REMOTE_PORT'] ?? ($server['remote_port'] ?? ($server['remotePort'] ?? null));
+
+
+        $_SERVER['SERVER_PORT'] = $_SERVER['SERVER_PORT'] ?? ($server['server_port'] ?? $server['serverPort'] ?? $_SERVER['HTTP_HOST'] && str_contains($_SERVER['HTTP_HOST'], ':') ? (int)explode(':', (string)$_SERVER['HTTP_HOST'], 2)[1] : '19999');
+
+        $_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? ($server['server_name'] ?? $server['serverName'] ?? ($server['host'] ?? 'localhost'));
+
+        // HOST
+        if (isset($_SERVER['HTTP_HOST']) === false) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['SERVER_NAME'];
+
+            if (!empty($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] !== '80' && (string)$_SERVER['SERVER_PORT'] !== '443') $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'];
+
+        }
+
+
+        $_SERVER['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
+        $_SERVER['SERVER_SOFTWARE'] = $_SERVER['SERVER_SOFTWARE'] ?? 'Swoole';
+
+        $_SERVER['DOCUMENT_ROOT'] = $_SERVER['DOCUMENT_ROOT'] ?? $this->_document_root;
+        $server['script_name'] = $server['script_name'] ?? '/index.php';
         $requestUri = $server['request_uri'] ?? '/';
+        $scriptName = $server['script_name'] ?? '/index.php';
+        $_SERVER['SCRIPT_NAME'] = $scriptName;
+        $_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'] ?? $scriptName;
+        $_SERVER['SCRIPT_FILENAME'] = $_SERVER['SCRIPT_FILENAME'] ?? rtrim((string)$_SERVER['DOCUMENT_ROOT'], '/\\') . '/index.php';
 
         $_SERVER['REQUEST_METHOD'] = strtoupper($server['request_method'] ?? 'GET');
 
@@ -84,13 +118,12 @@ class SwooleBackendRequest extends \yii\web\Request{
         $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
 
         $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
-        $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
+
+
         $this->setScriptFile($scriptName);
-      //  Yii::$app->request->setScriptUrl('/index.php');
         $this->setQueryParams($get);
         $this->setBodyParams($post);
         $this->setRawBody($this->_request->rawContent() ?: '');
-
 
         $this->setUrl($_SERVER['REQUEST_URI']);
         $this->setPathInfo($pathInfo);
