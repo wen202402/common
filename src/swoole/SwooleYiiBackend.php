@@ -113,12 +113,12 @@ class SwooleYiiBackend extends BaseObject{
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
 
-      //  $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
+    //    $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
       //  $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
         $application = new Application($this->app);
         $application->init();
-      //  if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
-     //   if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
+        if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
+        if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
 
         $application->run();
 
