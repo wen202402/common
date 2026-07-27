@@ -55,6 +55,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "php.override.implement.member.chooser.php.doc": "NONE",
     "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "reference.webide.settings.project.settings.php",
     "vue.rearranger.settings.migration": "true"
@@ -118,6 +119,7 @@
       <workItem from="1784764780769" duration="2572000" />
       <workItem from="1784900050243" duration="916000" />
       <workItem from="1784942555098" duration="4556000" />
+      <workItem from="1785055659761" duration="10381000" />
     </task>
     <servers />
   </component>
