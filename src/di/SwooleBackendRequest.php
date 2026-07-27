@@ -59,14 +59,13 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
-
     protected function setupGlobalVars(): void{
         $server  = $this->_request->server ?? [];
         $headers = $this->_request->header ?? [];
 
-        $get   = $this->_request->get ?? [];
-        $post  = $this->_request->post ?? [];
-        $files = $this->_request->files ?? [];
+        $get     = $this->_request->get ?? [];
+        $post    = $this->_request->post ?? [];
+        $files   = $this->_request->files ?? [];
         $cookies = $this->_request->cookie ?? [];
 
         $_GET = $get;
@@ -75,47 +74,78 @@ class SwooleBackendRequest extends \yii\web\Request{
         $_COOKIE = $cookies;
         $_SERVER = [];
 
-
-        foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
-
-        foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
-
-
-
-        $_SERVER['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'] ?? ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '') !== '' ? explode(',', (string)$_SERVER['HTTP_X_FORWARDED_FOR'])[0] : ($_SERVER['REMOTE_PORT'] ? '127.0.0.1' : '127.0.0.1');
-
-        $_SERVER['REMOTE_PORT'] = $_SERVER['REMOTE_PORT'] ?? ($server['remote_port'] ?? ($server['remotePort'] ?? null));
-
-
-        $_SERVER['SERVER_PORT'] = $_SERVER['SERVER_PORT'] ?? ($server['server_port'] ?? $server['serverPort'] ?? $_SERVER['HTTP_HOST'] && str_contains($_SERVER['HTTP_HOST'], ':') ? (int)explode(':', (string)$_SERVER['HTTP_HOST'], 2)[1] : '19999');
-
-        $_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? ($server['server_name'] ?? $server['serverName'] ?? ($server['host'] ?? 'localhost'));
-
-        // HOST
-        if (isset($_SERVER['HTTP_HOST']) === false) {
-            $_SERVER['HTTP_HOST'] = $_SERVER['SERVER_NAME'];
-
-            if (!empty($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] !== '80' && (string)$_SERVER['SERVER_PORT'] !== '443') $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'];
-
+        // 1) server -> $_SERVER
+        foreach ($server as $key => $value) {
+            $_SERVER[strtoupper($key)] = $value;
         }
 
+        // 2) header -> $_SERVER['HTTP_*']
+        foreach ($headers as $key => $value) {
+            $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
+        }
 
+        // 3) REMOTE_ADDR / REMOTE_PORT
+        $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+        $_SERVER['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'] ?? (
+        ($xff !== null && $xff !== '') ? explode(',', (string)$xff)[0] : '127.0.0.1'
+        );
+
+        $_SERVER['REMOTE_PORT'] = $_SERVER['REMOTE_PORT'] ?? (
+            $server['remote_port'] ?? $server['remotePort'] ?? '0'
+        );
+
+        // 4) SERVER_PORT / SERVER_NAME / HTTP_HOST
+        $httpHost = $_SERVER['HTTP_HOST'] ?? '';
+        $defaultPort = '19999';
+
+        $_SERVER['SERVER_PORT'] = $_SERVER['SERVER_PORT'] ?? (
+            $server['server_port'] ?? $server['serverPort'] ?? (
+        ($httpHost !== '' && str_contains($httpHost, ':'))
+            ? (string)explode(':', (string)$httpHost, 2)[1]
+            : $defaultPort
+        )
+        );
+
+        $_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? (
+            $server['server_name'] ?? $server['serverName'] ?? ($server['host'] ?? 'localhost')
+        );
+
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['SERVER_NAME'];
+            if (!empty($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] !== '80' && (string)$_SERVER['SERVER_PORT'] !== '443') {
+                $_SERVER['HTTP_HOST'] .= ':' . (string)$_SERVER['SERVER_PORT'];
+            }
+        }
+
+        // 5) 协议/软件
         $_SERVER['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
         $_SERVER['SERVER_SOFTWARE'] = $_SERVER['SERVER_SOFTWARE'] ?? 'Swoole';
 
-        $_SERVER['DOCUMENT_ROOT'] = $_SERVER['DOCUMENT_ROOT'] ?? $this->_document_root;
-        $server['script_name'] = $server['script_name'] ?? '/index.php';
-        $requestUri = $server['request_uri'] ?? '/';
+        // 6) DOCUMENT_ROOT / PHP_SELF / SCRIPT_NAME / SCRIPT_FILENAME
+        // 你需要保证 $this->_document_root 已在类里被正确设置成 webroot 的绝对路径
+        $_SERVER['DOCUMENT_ROOT'] = $_SERVER['DOCUMENT_ROOT'] ?? ($this->_document_root ?? '');
+
         $scriptName = $server['script_name'] ?? '/index.php';
+        $requestUri = $server['request_uri'] ?? '/';
+
         $_SERVER['SCRIPT_NAME'] = $scriptName;
         $_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'] ?? $scriptName;
-        $_SERVER['SCRIPT_FILENAME'] = $_SERVER['SCRIPT_FILENAME'] ?? rtrim((string)$_SERVER['DOCUMENT_ROOT'], '/\\') . '/index.php';
 
+        $docRoot = (string)($_SERVER['DOCUMENT_ROOT'] ?? '');
+        if ($docRoot !== '') {
+            $_SERVER['SCRIPT_FILENAME'] = $_SERVER['SCRIPT_FILENAME'] ?? rtrim($docRoot, '/\\') . '/index.php';
+        } else {
+            // 没有 document_root 就至少给个合理占位，避免 undefined
+            $_SERVER['SCRIPT_FILENAME'] = $_SERVER['SCRIPT_FILENAME'] ?? ($server['script_filename'] ?? '');
+        }
+
+        // 7) request_method / query / request_uri / path_info
         $_SERVER['REQUEST_METHOD'] = strtoupper($server['request_method'] ?? 'GET');
-
         $_SERVER['QUERY_STRING'] = $queryString = $server['query_string'] ?? http_build_query($get);
 
-        $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
+        $_SERVER['REQUEST_URI'] = $requestUri . (
+            $queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : ''
+            );
 
         $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
 
