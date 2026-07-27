@@ -4,9 +4,8 @@ namespace wen202402\common\swoole;
 
 use Throwable;
 use wen202402\common\di\Application;
-use wen202402\common\helper\CacheHelper;
 use wen202402\common\helper\FileHelper;
-use wen202402\common\helper\IPHelper;
+
 use Yii;
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
@@ -17,7 +16,6 @@ class SwooleYiiBackend extends BaseObject{
     public $mode     = SWOOLE_PROCESS;
     public $sockType = SWOOLE_SOCK_TCP;
     public $document_root ;
-
     public $options = [
         'pid_file' =>  'backend/runtime/swoole.pid',
         'log_file' =>    'backend/runtime/swoole.log',
@@ -35,14 +33,12 @@ class SwooleYiiBackend extends BaseObject{
         'group' => 'www',
     ];
 
-
     public $app = [];
 
     /**
      * @var \Swoole\Http\Server
      */
     public $server;
-
 
 
     public function init(){
@@ -63,9 +59,6 @@ class SwooleYiiBackend extends BaseObject{
 
         foreach ($this->events() as $event => $callback) $this->server->on($event, $callback);
     }
-
-
-
 
     public function events(){
         return [
@@ -93,32 +86,9 @@ class SwooleYiiBackend extends BaseObject{
 
     }
 
-    public function getIP(){
-        $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
-        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
-        $application = new Application($this->app);
-        $application->init();
-        if (!Yii::$app || !Yii::$app->has('cache')) return;
 
-        if (empty(CacheHelper::getServerIp())) {
-            try {
-
-                if ($ip = IPHelper::getServerHttp()) CacheHelper::setServerIpToCache($ip);
-
-            } catch (\Throwable $e) {
-
-            }
-        }
-    }
 
     public function onWorkerStart(\Swoole\Http\Server $server, $workerId){
-
-
-        $timer = \Swoole\Timer::tick(600000, function() {
-            if (Yii::$app && Yii::$app->has('db')) fwrite(STDOUT, "DB Connections: " . count(Yii::$app->db->pdoStatement ?? []) . "\n");
-        });
-
-
 
     }
 
@@ -128,21 +98,6 @@ class SwooleYiiBackend extends BaseObject{
         fprintf(STDERR, "worker error. id=%d pid=%d code=%d signal=%d\n", $workerId, $workerPid, $exitCode, $signal);
     }
 
-
-
-
-/*    public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
-
-        $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
-        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
-        $application = new Application($this->app);
-        $application->init();
-        if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
-        if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
-
-        $application->run();
-
-    }*/
 
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
@@ -162,8 +117,6 @@ class SwooleYiiBackend extends BaseObject{
             throw $e;
         }
     }
-
-
 
 
     public function onTask(\Swoole\Http\Server $server, $taskId, $workerId, $data){
