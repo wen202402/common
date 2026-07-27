@@ -3,10 +3,11 @@
   "type": "library",
   "description": "A small PHP library",
   "license": "MIT",
+  "minimum-stability": "stable",
   "require": {
     "php": ">=8.1",
-    "yiisoft/yii2-httpclient": "^2.0.16",
-    "yiisoft/yii2": "~2.0.45"
+    "yiisoft/yii2": "~2.0.45",
+    "yiisoft/yii2-httpclient": "^2.0.16"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.2",
