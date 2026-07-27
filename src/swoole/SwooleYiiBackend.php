@@ -19,7 +19,7 @@ class SwooleYiiBackend extends BaseObject{
     public $options = [
         'pid_file' =>  'backend/runtime/swoole.pid',
         'log_file' =>    'backend/runtime/swoole.log',
-        'worker_num' => 2,                                                           //建议：部署后用监控工具（如 Prometheus + Grafana）观测数据库连接数和 Redis 内存占用，再根据实际情况调整 Worker 数量。
+        'worker_num' => 1,                                                           //建议：部署后用监控工具（如 Prometheus + Grafana）观测数据库连接数和 Redis 内存占用，再根据实际情况调整 Worker 数量。
         'daemonize' => false,                                                                                           //开启进程守护避免代码崩溃后退出
         'enable_static_handler' => true,                                                                               //后端一定要开启
         'document_root' =>   '',
