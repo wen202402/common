@@ -26,9 +26,9 @@ class SwooleYiiBackend extends BaseObject{
         'enable_coroutine' => true,
         'open_mqtt_protocol' => false,
         'open_tcp_nodelay' => true,
-        'max_request' => 10000,
+        'max_request' => 10000,                                                                                     //偶然重启释放点内存
         'dispatch_mode' => 2,
-        'log_level' => 0,
+        'log_level' => SWOOLE_LOG_WARNING,
         'user' => 'www',
         'group' => 'www',
     ];

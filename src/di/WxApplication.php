@@ -37,6 +37,14 @@ class WxApplication extends \yii\web\Application{
         }
     }
 
+
+
+
+
+
+
+
+
     public function end($status = 0, $response = null){
 
         if ($this->state === self::STATE_BEFORE_REQUEST || $this->state === self::STATE_HANDLING_REQUEST) {
