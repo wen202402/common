@@ -4,7 +4,9 @@ namespace wen202402\common\swoole;
 
 use Throwable;
 use wen202402\common\di\Application;
+use wen202402\common\helper\CacheHelper;
 use wen202402\common\helper\FileHelper;
+use wen202402\common\helper\IPHelper;
 use Yii;
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
@@ -85,10 +87,28 @@ class SwooleYiiBackend extends BaseObject{
         FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'modules');
         FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
-
+        $this->getIP();
         printf("listen on http://%s:%d\n", $server->host, $server->port);
 
 
+    }
+
+    public function getIP(){
+        $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
+        $application = new Application($this->app);
+        $application->init();
+        if (!Yii::$app || !Yii::$app->has('cache')) return;
+
+        if (empty(CacheHelper::getServerIp())) {
+            try {
+
+                if ($ip = IPHelper::getServerHttp()) CacheHelper::setServerIpToCache($ip);
+
+            } catch (\Throwable $e) {
+
+            }
+        }
     }
 
     public function onWorkerStart(\Swoole\Http\Server $server, $workerId){
@@ -113,8 +133,8 @@ class SwooleYiiBackend extends BaseObject{
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
 
-    //    $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
-      //  $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
+        $_SERVER['SCRIPT_NAME']     =   $scriptName = $request->server['script_name'] ?? '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
         $application = new Application($this->app);
         $application->init();
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
