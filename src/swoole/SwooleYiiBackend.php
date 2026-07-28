@@ -6,6 +6,7 @@ use Throwable;
 use wen202402\common\di\Application;
 use wen202402\common\helper\FileHelper;
 
+use wen202402\common\helper\IPHelper;
 use Yii;
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
@@ -82,7 +83,7 @@ class SwooleYiiBackend extends BaseObject{
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
        // $this->getIP();
 
-        printf("listen on http://%s:%d\n", $ip = (@trim(file_get_contents('https://ifconfig.me'))) ?: $server->host, $server->port);
+        printf("listen on http://%s:%d\n", IPHelper::getServerIp() ?: $server->host, $server->port);
 
 
     }

@@ -9,7 +9,7 @@ use yii\httpclient\Client;
 class IPHelper
 {
 
-    public static function getServerHttp(){
+    public static function getServerIp(){
         $client = new Client();
 
         $response = $client->createRequest()
@@ -33,7 +33,7 @@ class IPHelper
         if (!empty(CacheHelper::getServerIp())) return ;
             try {
 
-                if ($ip = IPHelper::getServerHttp()) CacheHelper::setServerIpToCache($ip);
+                if ($ip = IPHelper::getServerIp()) CacheHelper::setServerIpToCache($ip);
 
             } catch (\Throwable $e) {
 
