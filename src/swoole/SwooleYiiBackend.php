@@ -81,8 +81,8 @@ class SwooleYiiBackend extends BaseObject{
         FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
        // $this->getIP();
-        printf("listen on http://%s:%d\n", $server->host, $server->port);
 
+        printf("listen on http://%s:%d\n", $ip = (@trim(file_get_contents('https://ifconfig.me'))) ?: $server->host, $server->port);
 
 
     }
