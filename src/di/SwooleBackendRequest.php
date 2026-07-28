@@ -12,7 +12,7 @@ use yii\web\ForbiddenHttpException;
  * @package swoole\foundation\web
  */
 class SwooleBackendRequest extends \yii\web\Request{
-    use TraitSafeRequest;
+
     /**
      * @var \Swoole\Http\Request
      */
@@ -159,6 +159,39 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
+    protected function setupGlobalVars(): void{
+        $server = $this->_request->server ?? [];
+        $headers = $this->_request->header ?? [];
+
+        $get = $this->_request->get ?? [];
+        $post = $this->_request->post ?? [];
+        $files = $this->_request->files ?? [];
+        $cookies = $this->_request->cookie ?? [];
+        $_GET = $get;
+        $_POST = $post;
+        $_FILES = $files;
+        $_COOKIE = $cookies;
+        $_SERVER = [];
+
+        foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
+        foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
+        $requestUri = $server['request_uri'] ?? '/';
+
+        $_SERVER['REQUEST_METHOD'] = strtoupper($server['request_method'] ?? 'GET');
+
+        $_SERVER['QUERY_STRING'] = $queryString = $server['query_string'] ?? http_build_query($get);
+
+        $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
+
+        $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
+        $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
+        $this->setQueryParams($get);
+        $this->setBodyParams($post);
+        $this->setRawBody($this->_request->rawContent() ?: '');
+
+        $this->setUrl($_SERVER['REQUEST_URI']);
+        $this->setPathInfo($pathInfo);
+    }
 
 
 
