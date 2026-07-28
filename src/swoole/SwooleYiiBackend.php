@@ -3,13 +3,15 @@
 namespace wen202402\common\swoole;
 
 use Throwable;
-use wen202402\common\di\Application;
+
 use wen202402\common\helper\FileHelper;
 
 use wen202402\common\helper\IPHelper;
 use Yii;
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
+use yii\web\Application;
+
 \Swoole\Runtime::enableCoroutine();
 class SwooleYiiBackend extends BaseObject{
     public $host     = '0.0.0.0';
