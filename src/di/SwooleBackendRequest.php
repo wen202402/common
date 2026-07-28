@@ -12,6 +12,7 @@ use yii\web\ForbiddenHttpException;
  * @package swoole\foundation\web
  */
 class SwooleBackendRequest extends \yii\web\Request{
+    use TraitSafeRequest;
     /**
      * @var \Swoole\Http\Request
      */
@@ -59,7 +60,7 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
-    use TraitSafeRequest;
+
 
 
 

@@ -26,8 +26,8 @@ class SwooleYiiBackend extends BaseObject{
         'enable_coroutine' => true,
         'open_mqtt_protocol' => false,
         'open_tcp_nodelay' => true,
-        'max_request' => 10000,                                                                                     //偶然重启释放点内存
-        'dispatch_mode' => 2,                                                                               //模式 1（固定/负载相关的分发） 模式 2（轮询/均衡分发） 模式 3（自定义/更严格的映射分发，取决于版本）
+        'max_request' => 10000,                                                                                               //偶然重启释放点内存
+        'dispatch_mode' => 2,                                                                                               //模式1（固定/负载相关的分发） 模式2（轮询/均衡分发） 模式 3（自定义/更严格的映射分发，取决于版本）
         'log_level' => SWOOLE_LOG_WARNING,
         'user' => 'www',
         'group' => 'www',
@@ -82,6 +82,7 @@ class SwooleYiiBackend extends BaseObject{
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
        // $this->getIP();
         printf("listen on http://%s:%d\n", $server->host, $server->port);
+
 
 
     }

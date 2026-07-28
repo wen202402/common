@@ -9,7 +9,7 @@ trait TraitSafeRequest {
     private $_document_root;
 
 
-    protected bool $_enableSafeRequestFiltering = true;
+    public bool $_enableSafeRequestFiltering = false;
 
     protected function setupGlobalVars(): void {
 
@@ -89,20 +89,15 @@ trait TraitSafeRequest {
         // 3) REMOTE_ADDR / REMOTE_PORT
         $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
         $_SERVER['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'] ?? (
-        ($xff !== null && $xff !== '') ? explode(',', (string)$xff)[0] : '127.0.0.1'
-        );
+        ($xff !== null && $xff !== '') ? explode(',', (string)$xff)[0] : '127.0.0.1');
 
-        $_SERVER['REMOTE_PORT'] = $_SERVER['REMOTE_PORT'] ?? (
-            $server['remote_port'] ?? $server['remotePort'] ?? '0'
-        );
+        $_SERVER['REMOTE_PORT'] = $_SERVER['REMOTE_PORT'] ?? ($server['remote_port'] ?? $server['remotePort'] ?? '0');
 
         // 4) SERVER_PORT / SERVER_NAME / HTTP_HOST
         $httpHost = $_SERVER['HTTP_HOST'] ?? '';
         $defaultPort = '19999';
 
-        $_SERVER['SERVER_PORT'] = $_SERVER['SERVER_PORT'] ?? ($server['server_port'] ?? $server['serverPort'] ?? (
-        ($httpHost !== '' && str_contains($httpHost, ':')) ? (string)explode(':', (string)$httpHost, 2)[1] : $defaultPort)
-        );
+        $_SERVER['SERVER_PORT'] = $_SERVER['SERVER_PORT'] ?? ($server['server_port'] ?? $server['serverPort'] ?? (($httpHost !== '' && str_contains($httpHost, ':')) ? (string)explode(':', (string)$httpHost, 2)[1] : $defaultPort));
 
         $_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? ($server['server_name'] ?? $server['serverName'] ?? ($server['host'] ?? 'localhost'));
 
@@ -135,12 +130,9 @@ trait TraitSafeRequest {
         $_SERVER['REQUEST_METHOD'] = strtoupper($server['request_method'] ?? 'GET');
         $_SERVER['QUERY_STRING'] = $queryString = $server['query_string'] ?? http_build_query($get);
 
-        $_SERVER['REQUEST_URI'] = $requestUri . (
-            $queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : ''
-            );
+        $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
 
         $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
-
 
         $this->setScriptFile($scriptName);
         $this->setQueryParams($get);
