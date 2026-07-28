@@ -19,7 +19,7 @@ class SwooleBackendRequest extends \yii\web\Request{
     private $_request;
 
 
-    public $enableCookieValidation = false;
+    public $enableCookieValidation = true;
     public $csrfParam = '_csrf-backend';
 
   //  public $parsers = ['application/json' => \yii\web\JsonParser::class,];
@@ -158,24 +158,6 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
-
-
-    protected function loadCookies(){
-        $cookies = [];
-        if (!$this->enableCookieValidation) {
-            if (!empty($_COOKIE))  foreach ($_COOKIE as $name => $value) $cookies[$name] = Yii::createObject(['class' => \yii\web\Cookie::class, 'name' => $name, 'value' => $value, 'expire' => null,]);
-            return $cookies;
-        }
-        if ($this->cookieValidationKey == '') throw new InvalidConfigException(get_class($this) . '::cookieValidationKey must be configured with a secret key.');
-        foreach ($_COOKIE as $name => $value) {
-            if (!is_string($value)) continue;
-            if (($data = Yii::$app->getSecurity()->validateData($value, $this->cookieValidationKey)) === false) continue;
-            $data = (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70000) ? @unserialize($data, ['allowed_classes' => false]): @unserialize($data);
-            if (is_array($data) && isset($data[0], $data[1]) && $data[0] === $name) $cookies[$name] = Yii::createObject(['class' => \yii\web\Cookie::class, 'name' => $name, 'value' => $data[1], 'expire' => null,]);
-
-        }
-        return $cookies;
-    }
 
 
 
