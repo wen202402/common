@@ -20,27 +20,21 @@ class SwooleBackendResponse extends \yii\web\Response{
     }
 
     protected function sendCookies(){
-        try {
-            if (Yii::$app && Yii::$app->has('session')) {
-                $session = Yii::$app->getSession();
-                if ($session && $session->getIsActive() && $session->getId() !== '') {
-                    $params = $session->getCookieParams();
-                    $this->getCookies()->add(new Cookie(['name' => $session->name,'value' => $session->getId(), 'expire' => isset($params['lifetime']) && $params['lifetime'] > 0 ? time() + $params['lifetime'] : 0,
-                        'path' => $params['path'] ?? '/', 'domain' => $params['domain'] ?? '', 'secure' => $params['secure'] ?? false,'httpOnly' => $params['httpOnly'] ?? true,]));
-                }
+
+        if (Yii::$app && Yii::$app->has('session')) {
+            $session = Yii::$app->getSession();
+            if ($session->getIsActive() && $session->getId() !== '') {
+                $params = $session->getCookieParams();
+                $this->getCookies()->add(new Cookie(['name' => $session->name, 'value' => $session->getId(), 'expire' => isset($params['lifetime']) && $params['lifetime'] > 0 ? time() + $params['lifetime'] : 0, 'path' => $params['path'] ?? '/', 'domain' => $params['domain'] ?? '', 'secure' => $params['secure'] ?? false, 'httpOnly' => $params['httpOnly'] ?? true,]));
             }
-        } catch (\Throwable $e) {
-            // 发送阶段兜底：session 不存在/已被清理时不要让它影响输出
-            // 这里可以选择不打印，避免刷屏
         }
+
 
         foreach ($this->getCookies() as $cookie) {
             $value = $cookie->value;
             if ($cookie->expire != 1 && Yii::$app->getRequest()->enableCookieValidation) $value = Yii::$app->getSecurity()->hashData(serialize([$cookie->name, $value]), Yii::$app->getRequest()->cookieValidationKey);
-            $this->_response->cookie(
-                $cookie->name, $value, $cookie->expire,
-                $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly
-            );
+
+            $this->_response->cookie($cookie->name, $value, $cookie->expire, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly);
         }
     }
 
