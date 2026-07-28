@@ -36,12 +36,7 @@ class SwooleBackendResponse extends \yii\web\Response{
 
         foreach ($this->getCookies() as $cookie) {
             $value = $cookie->value;
-            if ($cookie->expire != 1 && Yii::$app->getRequest()->enableCookieValidation) {
-                $value = Yii::$app->getSecurity()->hashData(
-                    serialize([$cookie->name, $value]),
-                    Yii::$app->getRequest()->cookieValidationKey
-                );
-            }
+            if ($cookie->expire != 1 && Yii::$app->getRequest()->enableCookieValidation) $value = Yii::$app->getSecurity()->hashData(serialize([$cookie->name, $value]), Yii::$app->getRequest()->cookieValidationKey);
             $this->_response->cookie(
                 $cookie->name, $value, $cookie->expire,
                 $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly
