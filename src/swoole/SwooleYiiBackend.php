@@ -107,8 +107,6 @@ class SwooleYiiBackend extends BaseObject{
             $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
 
             $application = new Application($this->app);
-            $application->init();
-
             if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->options['document_root']);
             if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
 
