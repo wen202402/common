@@ -155,10 +155,6 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
-
-
-
-
     protected function setupGlobalVars(): void{
         $server = $this->_request->server ?? [];
         $headers = $this->_request->header ?? [];
@@ -192,7 +188,6 @@ class SwooleBackendRequest extends \yii\web\Request{
         $this->setUrl($_SERVER['REQUEST_URI']);
         $this->setPathInfo($pathInfo);
     }
-
 
 
 
