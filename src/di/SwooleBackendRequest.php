@@ -17,6 +17,7 @@ class SwooleBackendRequest extends \yii\web\Request{
      * @var \Swoole\Http\Request
      */
     private $_request;
+    private $_document_root;
 
 
     public $enableCookieValidation = true;
