@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02e49ca3030dd01774f33523d1714fc8",
+    "content-hash": "246670ddf7490d66bb617e7635335513",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -69,6 +69,61 @@
                 "source": "https://github.com/cebe/markdown"
             },
             "time": "2018-03-26T11:24:36+00:00"
+        },
+        {
+            "name": "dacheng-php/yii2-swoole",
+            "version": "v0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dacheng-php/yii2-swoole.git",
+                "reference": "0dbf9626bc5d9b161880b4cbfcf4786b655a1aa0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dacheng-php/yii2-swoole/zipball/0dbf9626bc5d9b161880b4cbfcf4786b655a1aa0",
+                "reference": "0dbf9626bc5d9b161880b4cbfcf4786b655a1aa0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-swoole": "^6.0",
+                "php": ">=8.1",
+                "yiisoft/yii2": "^2.0"
+            },
+            "require-dev": {
+                "swoole/ide-helper": "6.0.2",
+                "yidas/yii2-composer-bower-skip": "2.0.13",
+                "yiisoft/yii2-httpclient": "^2.0",
+                "yiisoft/yii2-queue": "^2.0",
+                "yiisoft/yii2-redis": "^2.0"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dacheng\\Yii2\\Swoole\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Yii2 Swoole extension, provides coroutine http server and more coroutine features.",
+            "keywords": [
+                "connection pools",
+                "coroutine",
+                "http server",
+                "swoole",
+                "yii2"
+            ],
+            "support": {
+                "issues": "https://github.com/dacheng-php/yii2-swoole/issues",
+                "source": "https://github.com/dacheng-php/yii2-swoole/tree/v0.2"
+            },
+            "time": "2025-11-05T16:01:44+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",

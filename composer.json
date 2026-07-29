@@ -6,8 +6,11 @@
   "minimum-stability": "stable",
   "require": {
     "php": ">=8.1",
+    "ext-pdo": "*",
+
     "yiisoft/yii2": "~2.0.45",
     "yiisoft/yii2-httpclient": "^2.0.16"
+
   },
   "require-dev": {
     "phpstan/phpstan": "^2.2",
