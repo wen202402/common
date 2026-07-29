@@ -129,6 +129,7 @@
       <workItem from="1785237232192" duration="257000" />
       <workItem from="1785240628148" duration="2124000" />
       <workItem from="1785271789232" duration="8858000" />
+      <workItem from="1785290248774" duration="4045000" />
     </task>
     <servers />
   </component>
@@ -142,6 +143,11 @@
           <url>file://$PROJECT_DIR$/src/helper/SafeHelper.php</url>
           <line>4</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/src/di/SwooleBackendRequest.php</url>
+          <line>198</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
