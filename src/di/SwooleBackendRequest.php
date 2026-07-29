@@ -3,8 +3,7 @@ namespace wen202402\common\di;
 
 
 use wen202402\common\helper\I8n;
-use Yii;
-use yii\base\InvalidConfigException;
+
 use yii\web\ForbiddenHttpException;
 
 /**
@@ -181,14 +180,25 @@ class SwooleBackendRequest extends \yii\web\Request{
         $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
 
         $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
-        $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
+        //   $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
+
+
+
+        $this->getSecureForwardedHeaderParts();                                       //这些搞错也会老是自动退出
+        $this->getCookies();
+        $this->getAbsoluteUrl();
+
         $this->setQueryParams($get);
-        $this->setBodyParams($post);
+        $this->getBodyParams();
         $this->setRawBody($this->_request->rawContent() ?: '');
 
-        $this->setUrl($_SERVER['REQUEST_URI']);
-        $this->setPathInfo($pathInfo);
+
+
+        $this->getPathInfo();
+        Yii::$app->response->clear();
     }
+
+
 
 
 

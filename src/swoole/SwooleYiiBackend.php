@@ -109,9 +109,7 @@ class SwooleYiiBackend extends BaseObject{
             $application = new Application($this->app);
             if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
             if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
-
             $application->run();
-
     }
 
 
