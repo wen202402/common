@@ -10,19 +10,24 @@ use yii\web\ForbiddenHttpException;
  * Swoole Request Proxy
  * @package swoole\foundation\web
  */
-class SwooleBackendRequest extends \yii\web\Request{
 
+
+
+
+/**
+ * Swoole Request Proxy
+ * @package swoole\foundation\web
+ */
+class SwooleBackendRequest extends \yii\web\Request{
     /**
      * @var \Swoole\Http\Request
      */
     private $_request;
-    private $_document_root;
 
-
-    public $enableCookieValidation = true;
+    public $enableCookieValidation = false;
     public $csrfParam = '_csrf-backend';
 
-  //  public $parsers = ['application/json' => \yii\web\JsonParser::class,];
+    //  public $parsers = ['application/json' => \yii\web\JsonParser::class,];
 
 
 
@@ -37,12 +42,15 @@ class SwooleBackendRequest extends \yii\web\Request{
         return $this->_request;
     }
 
+
+
+
+
     /**
      * @param \Swoole\Http\Request $request
      */
-    public function setRequest($request, $document_root){
+    public function setRequest($request){
         $this->_request = $request;
-        $this->_document_root = $document_root;
         $this->setupHeaders();
         $this->setupGlobalVars();
 
@@ -59,6 +67,40 @@ class SwooleBackendRequest extends \yii\web\Request{
     }
 
 
+
+
+
+    protected function setupGlobalVars(): void{
+        $server = $this->_request->server ?? [];
+        $headers = $this->_request->header ?? [];
+
+        $get = $this->_request->get ?? [];
+        $post = $this->_request->post ?? [];
+        $files = $this->_request->files ?? [];
+        $cookies = $this->_request->cookie ?? [];
+        $_GET = $get;
+        $_POST = $post;
+        $_FILES = $files;
+        $_COOKIE = $cookies;
+        $_SERVER = [];
+
+        foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
+        foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
+
+
+        $this->getSecureForwardedHeaderParts();
+        $this->getCookies();
+        $this->getAbsoluteUrl();
+
+        $this->setQueryParams($get);
+        $this->getBodyParams();
+        $this->setRawBody($this->_request->rawContent() ?: '');
+
+
+
+        $this->getPathInfo();
+        Yii::$app->response->clear();
+    }
 
 
 
@@ -111,12 +153,15 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
+
+
+
     public function handleFailure(){
 
         header("http/1.1 403 Forbidden");
         http_response_code(403);
         throw new ForbiddenHttpException(I8n::api('forbidden') );
-
+        //   exit();
     }
 
 
@@ -151,52 +196,6 @@ class SwooleBackendRequest extends \yii\web\Request{
         foreach ($headers ?? [] as $name => $value) $yheaders->set($name, $value);
     }
 
-
-
-
-
-    protected function setupGlobalVars(): void{
-        $server = $this->_request->server ?? [];
-        $headers = $this->_request->header ?? [];
-
-        $get = $this->_request->get ?? [];
-        $post = $this->_request->post ?? [];
-        $files = $this->_request->files ?? [];
-        $cookies = $this->_request->cookie ?? [];
-        $_GET = $get;
-        $_POST = $post;
-        $_FILES = $files;
-        $_COOKIE = $cookies;
-        $_SERVER = [];
-
-        foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
-        foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
-        $requestUri = $server['request_uri'] ?? '/';
-
-        $_SERVER['REQUEST_METHOD'] = strtoupper($server['request_method'] ?? 'GET');
-
-        $_SERVER['QUERY_STRING'] = $queryString = $server['query_string'] ?? http_build_query($get);
-
-        $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
-
-        if (!isset(  $_SERVER['PATH_INFO'])||empty($_SERVER['PATH_INFO']))   $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
-        //   $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
-
-
-
-        $this->getSecureForwardedHeaderParts();                                                                                      //这些搞错也会老是自动退出
-        $this->getCookies();
-        $this->getAbsoluteUrl();
-
-        $this->setQueryParams($get);
-        $this->getBodyParams();
-        $this->setRawBody($this->_request->rawContent() ?: '');
-
-
-
-        $this->getPathInfo();
-        Yii::$app->response->clear();
-    }
 
 
 
