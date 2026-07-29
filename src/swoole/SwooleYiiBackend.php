@@ -13,7 +13,7 @@ use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 
 
-\Swoole\Runtime::enableCoroutine();
+//\Swoole\Runtime::enableCoroutine();
 class SwooleYiiBackend extends BaseObject{
     public $host     = '0.0.0.0';
     public $port     = 58000;
