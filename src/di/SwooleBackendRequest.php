@@ -179,12 +179,12 @@ class SwooleBackendRequest extends \yii\web\Request{
 
         $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
 
-        $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
+        if (!isset(  $_SERVER['PATH_INFO'])||empty($_SERVER['PATH_INFO']))   $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
         //   $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
 
 
 
-        $this->getSecureForwardedHeaderParts();                                       //这些搞错也会老是自动退出
+        $this->getSecureForwardedHeaderParts();                                                                                      //这些搞错也会老是自动退出
         $this->getCookies();
         $this->getAbsoluteUrl();
 
