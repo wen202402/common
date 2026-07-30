@@ -99,11 +99,17 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
         $this->getPathInfo();
+        $this->resetCounter();
         Yii::$app->response->clear();
     }
 
 
+    private function resetCounter(){
+        $ref = new \ReflectionClass(\yii\data\BaseDataProvider::class);
+        $prop = $ref->getProperty('counter');
+        $prop->setValue(0);
 
+    }
 
 
 

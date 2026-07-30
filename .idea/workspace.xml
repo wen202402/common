@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/codeception.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeception.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/phpspec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/phpspec.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/di/CoroutineDbConnection.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/di/CoroutineDbConnection.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/di/Redis/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/di/Redis/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,7 +33,6 @@
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
       <path value="$PROJECT_DIR$/vendor/paragonie/random_compat" />
       <path value="$PROJECT_DIR$/vendor/yiisoft/yii2-httpclient" />
-      <path value="$PROJECT_DIR$/vendor/dacheng-php/yii2-swoole" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -143,6 +135,7 @@
       <workItem from="1785337223358" duration="2904000" />
       <workItem from="1785342569153" duration="167000" />
       <workItem from="1785358736000" duration="242000" />
+      <workItem from="1785414273165" duration="3320000" />
     </task>
     <servers />
   </component>
@@ -161,6 +154,11 @@
           <url>file://$PROJECT_DIR$/src/di/SwooleBackendRequest.php</url>
           <line>198</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/vendor/yiisoft/yii2/data/BaseDataProvider.php</url>
+          <line>64</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

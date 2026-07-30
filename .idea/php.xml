@@ -21,7 +21,6 @@
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
       <path value="$PROJECT_DIR$/vendor/paragonie/random_compat" />
       <path value="$PROJECT_DIR$/vendor/yiisoft/yii2-httpclient" />
-      <path value="$PROJECT_DIR$/vendor/dacheng-php/yii2-swoole" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
