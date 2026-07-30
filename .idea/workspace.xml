@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="" />
+    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/codeception.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeception.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/phpspec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/phpspec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/di/CoroutineDbConnection.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/di/CoroutineDbConnection.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/di/Redis/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/di/Redis/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -33,6 +40,7 @@
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
       <path value="$PROJECT_DIR$/vendor/paragonie/random_compat" />
       <path value="$PROJECT_DIR$/vendor/yiisoft/yii2-httpclient" />
+      <path value="$PROJECT_DIR$/vendor/dacheng-php/yii2-swoole" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -73,11 +81,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/di/Redis" />
+      <recent name="$PROJECT_DIR$/src/di" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/service" />
       <recent name="$PROJECT_DIR$/test" />
-      <recent name="$PROJECT_DIR$/src/swoole" />
-      <recent name="$PROJECT_DIR$/src/struct" />
     </key>
   </component>
   <component name="RunManager">
@@ -132,6 +140,9 @@
       <workItem from="1785290248774" duration="4045000" />
       <workItem from="1785301215554" duration="24000" />
       <workItem from="1785312679024" duration="175000" />
+      <workItem from="1785337223358" duration="2904000" />
+      <workItem from="1785342569153" duration="167000" />
+      <workItem from="1785358736000" duration="242000" />
     </task>
     <servers />
   </component>

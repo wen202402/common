@@ -12,22 +12,16 @@ use yii\base\InvalidConfigException;
 final class CoroutineConnectionPool
 {
     private Channel $channel;
-
     private int $maxActive;
-
     private float $waitTimeout;
-
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $factory;
 
-    /**
-     * @param callable $factory creator returning a configured PDO instance
-     */
-    public function __construct(callable $factory, int $maxActive, float $waitTimeout){
-        if ($maxActive < 1) throw new InvalidConfigException('"poolMaxActive" must be greater than or equal to 1.');
-
+    public function __construct(callable $factory, int $maxActive, float $waitTimeout)
+    {
+        if ($maxActive < 1) {
+            throw new InvalidConfigException('"poolMaxActive" must be greater than or equal to 1.');
+        }
 
         $this->factory = $factory;
         $this->maxActive = $maxActive;
@@ -35,15 +29,33 @@ final class CoroutineConnectionPool
         $this->channel = new Channel($maxActive);
 
         try {
-            for ($i = 0; $i < $this->maxActive; $i++) $this->pushConnection($this->createConnection());
-
+            for ($i = 0; $i < $this->maxActive; $i++) {
+                $this->pushConnection($this->createConnection());
+            }
         } catch (\Throwable $exception) {
             $this->drainPool();
             throw $exception;
         }
     }
 
-    public function acquire(): PDO{
+    private function inCoroutine(): bool
+    {
+        if (!class_exists(\Swoole\Coroutine::class)) {
+            return false;
+        }
+
+        // Swoole 常见写法：cid > 0 表示在协程内
+        return (int) \Swoole\Coroutine::getCid() > 0;
+    }
+
+    public function acquire(): PDO
+    {
+        // 非协程：不要调用 Channel 协程 API，否则会触发
+        // "API must be called in the coroutine"
+        if (!$this->inCoroutine()) {
+            return $this->createConnection();
+        }
+
         $connection = $this->channel->pop($this->waitTimeout);
 
         if ($connection instanceof PDO) {
@@ -58,8 +70,8 @@ final class CoroutineConnectionPool
                 sprintf(
                     'Database connection pool exhausted. Max active: %d, idle: %d, waiting consumers: %d',
                     $this->maxActive,
-                    (int) ($stats['queue_num'] ?? 0),
-                    (int) ($stats['consumer_num'] ?? 0)
+                    (int)($stats['queue_num'] ?? 0),
+                    (int)($stats['consumer_num'] ?? 0)
                 )
             );
         }
@@ -70,13 +82,18 @@ final class CoroutineConnectionPool
 
     public function release(PDO $connection): void
     {
+        // 非协程：不要 push 回 Channel（避免再次触发协程 API）
+        if (!$this->inCoroutine()) {
+            $this->closeConnection($connection);
+            return;
+        }
+
         $this->pushConnection($connection);
     }
 
     private function closeConnection(PDO $connection): void
     {
         // PDO connections close automatically when all references are destroyed
-        // This method exists for consistency with the connection pool interface
         unset($connection);
     }
 
@@ -120,6 +137,11 @@ final class CoroutineConnectionPool
 
     private function drainPool(): void
     {
+        // 非协程：不能 pop()
+        if (!$this->inCoroutine()) {
+            return;
+        }
+
         // Get current pool size to avoid infinite loop
         try {
             $stats = $this->channel->stats();
@@ -127,19 +149,18 @@ final class CoroutineConnectionPool
         } catch (\Throwable $e) {
             return;
         }
-        
-        // Pop only the known number of connections with timeout
+
         for ($i = 0; $i < $count; $i++) {
             $connection = $this->channel->pop(0.01);
-            
+
             if ($connection === false || !($connection instanceof PDO)) {
                 break;
             }
-            
+
             try {
                 $this->closeConnection($connection);
             } catch (\Throwable $e) {
-                // Silently handle close errors
+                // ignore
             }
         }
     }
@@ -150,18 +171,21 @@ final class CoroutineConnectionPool
      */
     public function shutdown(): void
     {
-        // Drain all connections from the pool
+        // 非协程：不要 drain/close Channel，避免协程 API 报错
+        if (!$this->inCoroutine()) {
+            return;
+        }
+
         try {
             $this->drainPool();
         } catch (\Throwable $e) {
-            // Silently handle drain errors
+            // ignore
         }
-        
-        // Close the channel
+
         try {
             $this->channel->close();
         } catch (\Throwable $e) {
-            // Silently handle channel close errors
+            // ignore
         }
     }
 }

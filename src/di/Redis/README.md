@@ -1,4 +1,4 @@
-# Yii2-Swoole
+# Yii2-Swoole  https://jishuzhan.net/article/1982692684713230338
 
 Yii2 extension for Swoole: High-performance single-process asynchronous HTTP server with coroutines, database/Redis connection pools, and async job queue for building high-concurrency PHP applications.
 

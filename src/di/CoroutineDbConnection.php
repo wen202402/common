@@ -6,7 +6,7 @@ namespace wen202402\common\di;
 use PDO;
 use Swoole\Coroutine\Channel;
 use yii\db\Connection;
-
+//https://jishuzhan.net/article/1982692684713230338
 class CoroutineDbConnection extends Connection{
     public int $poolMaxActive = 20;
 
@@ -33,8 +33,6 @@ class CoroutineDbConnection extends Connection{
 
     public function open(): void{
         if ($this->pdo !== null) return;
-
-
         if (!$this->isPoolingEnabled()) {
             parent::open();
             return;
@@ -49,24 +47,16 @@ class CoroutineDbConnection extends Connection{
     public function close(): void{
         if (!$this->isPoolingEnabled()) {
             parent::close();
-
             return;
         }
 
         if ($this->pdo === null) return;
 
-
         if (!$this->released) {
             $pdo = $this->pdo;
             $this->released = true;
-
             parent::close();
-
-            try {
-                $this->ensurePool()->release($pdo);
-            } catch (\Throwable $e) {
-                \Yii::error('Error releasing connection to pool: ' . $e->getMessage(), __CLASS__);
-            }
+            try { $this->ensurePool()->release($pdo);  } catch (\Throwable $e) { \Yii::error('Error releasing connection to pool: ' . $e->getMessage(), __CLASS__); }
         } else     parent::close();
 
     }
@@ -84,23 +74,19 @@ class CoroutineDbConnection extends Connection{
         // Register shutdown function on first pool creation as a safety net
         if (!self::$shutdownRegistered) self::registerShutdownHandler();
 
-
         if (!isset(self::$sharedPools[$key])) {
             $lock = self::$poolLocks[$key] ??= $this->createPoolLock();
             $token = $lock->pop();
             try {
                 if (!isset(self::$sharedPools[$key])) self::$sharedPools[$key] = new CoroutineConnectionPool(fn (): PDO => $this->createPdoForPool(), $this->poolMaxActive, $this->poolWaitTimeout);
 
-            } finally {
-                $lock->push($token);
-            }
+            } finally { $lock->push($token); }
         }
 
         return self::$sharedPools[$key];
     }
 
-    public function getPool(): CoroutineConnectionPool
-    {
+    public function getPool(): CoroutineConnectionPool{
         return $this->ensurePool();
     }
 
@@ -124,13 +110,11 @@ class CoroutineDbConnection extends Connection{
     private function createPoolLock(): Channel{
         $lock = new Channel(1);
         $lock->push(true);
-
         return $lock;
     }
 
 
     public static function shutdownAllPools(): void{
-        // Shutdown all pools
         foreach (self::$sharedPools as $pool) {
             try {
                 $pool->shutdown();
@@ -142,9 +126,8 @@ class CoroutineDbConnection extends Connection{
         // Close and clear all pool locks
         foreach (self::$poolLocks as $lock) {
             try {
-                if ($lock instanceof Channel) {
-                    $lock->close();
-                }
+                if ($lock instanceof Channel) $lock->close();
+
             } catch (\Throwable $e) {
                 // Silently handle lock close errors (channel may already be closed)
             }
@@ -160,19 +143,11 @@ class CoroutineDbConnection extends Connection{
 
     private static function registerShutdownHandler(): void{
         if (self::$shutdownRegistered) return;
-
-
         self::$shutdownRegistered = true;
-
         register_shutdown_function(function (): void {
-            if (!empty(self::$sharedPools) || !empty(self::$poolLocks)) {
-                try {
-                    self::shutdownAllPools();
-                } catch (\Throwable $e) {
-                    // Use error_log here to avoid dependency on Yii during shutdown
-                    error_log('[CoroutineDbConnection] Error in shutdown handler: ' . $e->getMessage());
-                }
-            }
+         if (empty(self::$sharedPools) &&empty(self::$poolLocks)) return;
+         try { self::shutdownAllPools(); } catch (\Throwable $e) { error_log('[CoroutineDbConnection] Error in shutdown handler: ' . $e->getMessage()); }
+
         });
     }
 }
