@@ -133,7 +133,7 @@ class BaseSwoole extends BaseObject{
 
 
 
-
+//SCRIPT_NAME=/index.php  SCRIPT_FILENAME=/home/ubuntux/Desktop/all/yii-docker/php/backend/web/index.php
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
         $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
