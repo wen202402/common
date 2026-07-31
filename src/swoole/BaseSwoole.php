@@ -139,8 +139,8 @@ class BaseSwoole extends BaseObject{
         $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($this->document_root . $scriptName);
         $application = new Application($this->app);
-        if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request);
-        if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
+        if (method_exists($application->request, 'setRequest')) $application->request->setRequest($request);
+        if (method_exists($application->response, 'setResponse')) $application->response->setResponse($response);
         $application->run();
     }
 
