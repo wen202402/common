@@ -12,10 +12,8 @@ class BaseRequest  extends \yii\web\Request{
      */
     private $_request;
 
-    public $enableCookieValidation = true;
-
-    public $parsers = ['application/json' => \yii\web\JsonParser::class,];
-
+    public $enableCookieValidation = false;
+    public $csrfParam = '_csrf-backend';
 
     /**
      * @return \Swoole\Http\Request
