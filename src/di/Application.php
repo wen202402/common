@@ -62,9 +62,6 @@ class Application extends \yii\web\Application
             return (int)$e->statusCode;
         } catch (\Throwable $e) {
 
-            $this->exception = $e; // 注意：这句同样可能也会触发 UnknownPropertyException
-            // 如果你也遇到同类错误，把这一句也删掉即可
-
             if ($this->has('errorHandler')) {
                 $handler = $this->get('errorHandler');
                 $handler->handleException($e);
