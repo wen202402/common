@@ -70,6 +70,8 @@ class SwooleBackendRequest extends \yii\web\Request{
         $_FILES = [];
         $_COOKIE = [];
         $_SERVER = [];
+        $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false);
         $server = $this->_request->server ?? [];
         $headers = $this->_request->header ?? [];
 
