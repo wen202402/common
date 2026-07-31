@@ -90,8 +90,8 @@ class BaseSwoole extends BaseObject{
         FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
         // $this->getIP();
-        $this->log(sprintf("listen on http://%s:%d\n", trim(IPHelper::getServerIp())?: $server->host, $server->port));
-        $this->log(sprintf("listen on http://%s:%d\n", $server->host, $server->port));
+        $this->log(sprintf('listen on http://%s:%d', trim(IPHelper::getServerIp())?: $server->host, $server->port));
+        $this->log(sprintf('listen on http://%s:%d', $server->host, $server->port));
     }
 
 
