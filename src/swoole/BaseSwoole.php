@@ -241,7 +241,7 @@ class BaseSwoole extends BaseObject{
 
         $workerId = $this->server instanceof \Swoole\Http\Server && isset($this->server->worker_id) ? $this->server->worker_id : '-';
 
-        $content = sprintf("[%s] [%s] [pid:%d] [worker:%s] %s\n", date('Y-m-d H:i:s'), strtoupper($clevel), getmypid(), $workerId, $message);
+        $content = sprintf("[%s] %s-------------[%s]--[pid:%d]--[worker:%s]  \n", strtoupper($clevel), $message, date('Y-m-d H:i:s'), getmypid(),$workerId);
 
         $logFile = $this->options['log_file'] ?? '';
 
