@@ -132,9 +132,8 @@ class Application extends \yii\web\Application
             $response->send();
         }
 
-        if (YII_ENV_TEST) {
-            throw new ExitException($status);
-        }
+        if (YII_ENV_TEST) throw new ExitException($status);
+
 
         return $status;
     }
