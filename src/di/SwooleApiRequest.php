@@ -15,7 +15,4 @@ class SwooleApiRequest extends BaseRequest {
     public $parsers=['application/json' => \yii\web\JsonParser::class,];  //   'text/json' => \yii\web\JsonParser::class,
 
 
-
-
-
 }
