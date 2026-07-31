@@ -9,6 +9,8 @@ class SwooleBackendRequest extends BaseRequest{
 
     public $enableCookieValidation = false;
 
+    public $csrfParam = '_csrf-backend';
+
 
     //  public $parsers = ['application/json' => \yii\web\JsonParser::class,];
 
