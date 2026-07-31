@@ -115,13 +115,9 @@ class BaseRequest  extends \yii\web\Request{
 
         $this->getBodyParams();
         $this->setRawBody($this->_request->rawContent() ?: '');
-
-
-
         $this->getPathInfo();
         $this->resetCounter();
         Yii::$app->response->clear();
-
 
 
     }
