@@ -46,7 +46,7 @@ class SwooleBackendRequest extends \yii\web\Request{
     public function setRequest($request){
         $this->_request = $request;
         $this->setupHeaders();
-        $this->setupGlobalVars();
+        $this->setupGlobalVars($request);
 
 
     }
@@ -60,11 +60,85 @@ class SwooleBackendRequest extends \yii\web\Request{
         }
     }
 
+    protected function setupGlobalVars(\Swoole\Http\Request $request): void{
+        $server = is_array($request->server ?? null) ? $request->server : [];
+        $headers = is_array($request->header ?? null) ? $request->header : [];
+
+        $get = is_array($request->get ?? null) ? $request->get : [];
+        $post = is_array($request->post ?? null) ? $request->post : [];
+        $files = is_array($request->files ?? null) ? $request->files : [];
+        $cookies = is_array($request->cookie ?? null) ? $request->cookie : [];
+
+        $queryString = (string)($server['query_string'] ?? '');
+
+        if ($get === [] && $queryString !== '') parse_str($queryString, $get);
+        if ($queryString === '' && $get !== []) $queryString = http_build_query($get);
+
+        $requestPath = (string)($server['request_uri'] ?? '/');
+        $requestPath = parse_url($requestPath, PHP_URL_PATH) ?: '/';
+        $requestUri = $requestPath . ($queryString !== '' ? '?' . $queryString : '');
+
+        $documentRoot = rtrim((string)$this->options['document_root'], DIRECTORY_SEPARATOR);
+        $scriptFilename = $documentRoot . DIRECTORY_SEPARATOR . 'index.php';
+
+        $_GET = $get;
+        $_POST = $post;
+        $_FILES = $files;
+        $_COOKIE = $cookies;
+        $_SERVER = [];
+
+        foreach ($server as $name => $value) $_SERVER[strtoupper($name)] = $value;
+
+        foreach ($headers as $name => $value) {
+            $serverName = strtoupper(str_replace('-', '_', $name));
+
+            if ($serverName === 'CONTENT_TYPE' || $serverName === 'CONTENT_LENGTH') {
+                $_SERVER[$serverName] = $value;
+                continue;
+            }
+
+            $_SERVER['HTTP_' . $serverName] = $value;
+        }
+
+        $host = (string)($headers['host'] ?? $server['server_name'] ?? $this->host);
+        $forwardedProto = strtolower((string)($headers['x-forwarded-proto'] ?? ''));
+        $https = $forwardedProto === 'https' || (int)($server['server_port'] ?? 0) === 443;
+
+        $_SERVER['REQUEST_METHOD'] = strtoupper((string)($server['request_method'] ?? 'GET'));
+        $_SERVER['REQUEST_URI'] = $requestUri;
+        $_SERVER['QUERY_STRING'] = $queryString;
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['PHP_SELF'] = '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = $scriptFilename;
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+        $_SERVER['HTTP_HOST'] = $host;
+        $_SERVER['SERVER_NAME'] = preg_replace('/:\d+$/', '', $host);
+        $_SERVER['SERVER_PORT'] = (string)($server['server_port'] ?? ($https ? 443 : 80));
+        $_SERVER['SERVER_PROTOCOL'] = (string)($server['server_protocol'] ?? 'HTTP/1.1');
+        $_SERVER['REMOTE_ADDR'] = (string)($server['remote_addr'] ?? '');
+        $_SERVER['REMOTE_PORT'] = (string)($server['remote_port'] ?? '');
+        $_SERVER['REQUEST_SCHEME'] = $https ? 'https' : 'http';
+        $_SERVER['HTTPS'] = $https ? 'on' : 'off';
+
+        unset($_SERVER['PATH_INFO']);
+        $this->getSecureForwardedHeaderParts();
+        $this->getCookies();
+        $this->getAbsoluteUrl();
+
+        $this->getBodyParams();
+        $this->setRawBody($this->_request->rawContent() ?: '');
 
 
 
+        $this->getPathInfo();
+        $this->resetCounter();
+        Yii::$app->response->clear();
 
-    protected function setupGlobalVars(): void{
+
+
+    }
+
+   /* protected function setupGlobalVars(): void{
         $_GET = [];
         $_POST = [];
         $_FILES = [];
@@ -102,7 +176,7 @@ class SwooleBackendRequest extends \yii\web\Request{
         $this->getPathInfo();
         $this->resetCounter();
         Yii::$app->response->clear();
-    }
+    }*/
 
 
     private function resetCounter(){
