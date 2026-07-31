@@ -2,10 +2,7 @@
 namespace wen202402\common\di;
 
 
-use wen202402\common\helper\I8n;
 
-use Yii;
-use yii\web\ForbiddenHttpException;
 
 
 class SwooleBackendRequest extends BaseRequest{
