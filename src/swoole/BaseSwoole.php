@@ -147,23 +147,23 @@ class BaseSwoole extends BaseObject{
     }
 
     public function onManagerStart(\Swoole\Http\Server $server): void{
-      //  printf("manager started. pid=%d\n", getmypid());
+      printf("manager started. pid=%d\n", getmypid());
     }
 
     public function onManagerStop(\Swoole\Http\Server $server): void{
-      //  printf("manager stopped. pid=%d\n", getmypid());
+       printf("manager stopped. pid=%d\n", getmypid());
     }
 
 
     public function onWorkerError(\Swoole\Http\Server $server, $workerId, $workerPid, $exitCode, $signal){
-      //  fprintf(STDERR, "worker error. id=%d pid=%d code=%d signal=%d\n", $workerId, $workerPid, $exitCode, $signal);
+       fprintf(STDERR, "worker error. id=%d pid=%d code=%d signal=%d\n", $workerId, $workerPid, $exitCode, $signal);
     }
 
 
 
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
 
-       // printf("%s started. id=%d pid=%d\n", $workerType = $workerId >= ($workerNum = (int)($server->setting['worker_num'] ?? 0)) ? 'task-worker' : 'worker', $workerId, getmypid());
+       printf("%s started. id=%d pid=%d\n", $workerType = $workerId >= ($workerNum = (int)($server->setting['worker_num'] ?? 0)) ? 'task-worker' : 'worker', $workerId, getmypid());
     }
 
     public function onWorkerStop(\Swoole\Http\Server $server, int $workerId): void{
@@ -174,35 +174,35 @@ class BaseSwoole extends BaseObject{
             if (Yii::$app !== null && Yii::$app->has('redis')) Yii::$app->redis->close();
 
         } catch (Throwable $e) {
-        //    fprintf(STDERR, "worker cleanup error. id=%d message=%s\n", $workerId, $e->getMessage());
+         fprintf(STDERR, "worker cleanup error. id=%d message=%s\n", $workerId, $e->getMessage());
         }
 
-      //  printf("worker stopped. id=%d pid=%d\n", $workerId, getmypid());
+       printf("worker stopped. id=%d pid=%d\n", $workerId, getmypid());
     }
 
     public function onShutdown(\Swoole\Http\Server $server): void{
-      //  printf("server shutdown. pid=%d\n", getmypid());
+        printf("server shutdown. pid=%d\n", getmypid());
     }
 
 
 
 
     public function onBeforeReload(\Swoole\Http\Server $server): void{
-     //   printf("server before reload. pid=%d\n", getmypid());
+        printf("server before reload. pid=%d\n", getmypid());
     }
 
 
 
     public function onAfterReload(\Swoole\Http\Server $server): void{
-    //    printf("server after reload. pid=%d\n", getmypid());
+      printf("server after reload. pid=%d\n", getmypid());
     }
 
     public function onClose(\Swoole\Http\Server $server, int $fd, int $reactorId): void{
-    //    printf("connection closed. fd=%d reactorId=%d\n", $fd, $reactorId);
+      printf("connection closed. fd=%d reactorId=%d\n", $fd, $reactorId);
     }
 
     public function onFinish(\Swoole\Http\Server $server, int $taskId, mixed $data): void{
-       // printf("task finished. taskId=%d result=%s\n", $taskId, var_export($data, true));
+        printf("task finished. taskId=%d result=%s\n", $taskId, var_export($data, true));
     }
 
     public function onPipeMessage(\Swoole\Http\Server $server, int $srcWorkerId, mixed $data): void{
