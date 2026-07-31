@@ -44,8 +44,7 @@ class SwooleApiErrorHandler extends \yii\web\ErrorHandler{
     private $_memoryReserve;
 
 
-    public function handleError($code, $message, $file, $line)
-    {
+    public function handleError($code, $message, $file, $line){
         if (error_reporting() & $code) {
             // load ErrorException manually here because autoloading them will not work
             // when error occurs while autoloading a class
