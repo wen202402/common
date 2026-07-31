@@ -3,18 +3,9 @@
 namespace wen202402\common\di;
 
 
-use yii\web\Response;
+
 
 class SwooleApiResponse extends BaseResponse {
-
-
-
-
-
-
-
-
-
 
 
 
