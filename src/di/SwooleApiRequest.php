@@ -88,9 +88,8 @@ class SwooleApiRequest extends \yii\web\Request{
 
         $this->getSecureForwardedHeaderParts();
         $this->getCookies();
-        $this->getAbsoluteUrl();
-
         $this->setQueryParams($get);
+        $this->getAbsoluteUrl();
         $this->getBodyParams();
         $this->setRawBody($this->_request->rawContent() ?: '');
 
