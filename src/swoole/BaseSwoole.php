@@ -115,12 +115,23 @@ class BaseSwoole extends BaseObject{
 
 
 
-    public function setOption(){
-        $this->options['pid_file']=  ($docroot = $this->document_root . DIRECTORY_SEPARATOR) . 'api/runtime/swoole.pid';
-        $this->options['log_file']= $docroot . 'api/runtime/swoole.log';
-        $this->options['worker_num']=   (int)(swoole_cpu_num() *$this->cpu) ?: 2;                                                          //建议：部署后用监控工具（如 Prometheus + Grafana）观测数据库连接数和 Redis 内存占用，再根据实际情况调整 Worker 数量。
-        $this->options['document_root']= $docroot . 'api' . DIRECTORY_SEPARATOR . 'web';
+
+
+
+    public $appName = 'backend';
+
+    public function setOption(): void{
+        $docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $appRoot = $docroot . $this->appName . DIRECTORY_SEPARATOR;
+
+        $this->options['pid_file'] = $appRoot . 'runtime/swoole.pid';
+        $this->options['log_file'] = $appRoot . 'runtime/swoole.log';
+        $this->options['worker_num'] = (int)(swoole_cpu_num() * $this->cpu) ?: 2;
+        $this->options['document_root'] = $appRoot . 'web';
     }
+
+
+
 
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
@@ -146,13 +157,59 @@ class BaseSwoole extends BaseObject{
         }
     }
 
-    public function onManagerStart(\Swoole\Http\Server $server): void{
-      printf("manager started. pid=%d\n", getmypid());
+
+    public function onWorkerStop(\Swoole\Http\Server $server, int $workerId): void
+    {
+        try {
+            if (Yii::$app !== null && Yii::$app->has('db') && Yii::$app->db->isActive) Yii::$app->db->close();
+            if (Yii::$app !== null && Yii::$app->has('redis')) Yii::$app->redis->close();
+        } catch (Throwable $e) {
+            $this->log(sprintf('worker cleanup error. id=%d message=%s', $workerId, $e->getMessage()));
+        }
+
+        $this->log(sprintf('worker stopped. id=%d pid=%d', $workerId, getmypid()));
     }
 
-    public function onManagerStop(\Swoole\Http\Server $server): void{
-       printf("manager stopped. pid=%d\n", getmypid());
+    public function onClose(\Swoole\Http\Server $server, int $fd, int $reactorId): void
+    {
+        $this->log(sprintf('connection closed. fd=%d reactorId=%d', $fd, $reactorId));
     }
+
+    public function onFinish(\Swoole\Http\Server $server, int $taskId, mixed $data): void
+    {
+        $this->log(sprintf('task finished. taskId=%d result=%s', $taskId, var_export($data, true)));
+    }
+
+    public function onBeforeReload(\Swoole\Http\Server $server): void
+    {
+        $this->log(sprintf('server before reload. pid=%d', getmypid()));
+    }
+
+    public function onAfterReload(\Swoole\Http\Server $server): void
+    {
+        $this->log(sprintf('server after reload. pid=%d', getmypid()));
+    }
+
+    public function onShutdown(\Swoole\Http\Server $server): void
+    {
+        $this->log(sprintf('server shutdown. pid=%d', getmypid()));
+    }
+
+    public function onManagerStart(\Swoole\Http\Server $server): void
+    {
+        $this->log(sprintf('manager started. pid=%d', getmypid()));
+    }
+
+    public function onManagerStop(\Swoole\Http\Server $server): void
+    {
+        $this->log(sprintf('manager stopped. pid=%d', getmypid()));
+    }
+
+
+
+
+
+
 
 
     public function onWorkerError(\Swoole\Http\Server $server, $workerId, $workerPid, $exitCode, $signal){
@@ -161,51 +218,36 @@ class BaseSwoole extends BaseObject{
 
 
 
+    private function log(string $message){
+      return  error_log($message);
+    }
+
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
+        $workerNum = (int)($server->setting['worker_num'] ?? 0);
+        $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
 
-     //  printf("%s started. id=%d pid=%d\n", $workerType = $workerId >= ($workerNum = (int)($server->setting['worker_num'] ?? 0)) ? 'task-worker' : 'worker', $workerId, getmypid());
-    }
-
-    public function onWorkerStop(\Swoole\Http\Server $server, int $workerId): void{
-        try {
-            if (Yii::$app !== null && Yii::$app->has('db') && Yii::$app->db->isActive) Yii::$app->db->close();
-
-
-            if (Yii::$app !== null && Yii::$app->has('redis')) Yii::$app->redis->close();
-
-        } catch (Throwable $e) {
-         fprintf(STDERR, "worker cleanup error. id=%d message=%s\n", $workerId, $e->getMessage());
-        }
-
-       printf("worker stopped. id=%d pid=%d\n", $workerId, getmypid());
-    }
-
-    public function onShutdown(\Swoole\Http\Server $server): void{
-        printf("server shutdown. pid=%d\n", getmypid());
+        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()));
     }
 
 
 
 
-    public function onBeforeReload(\Swoole\Http\Server $server): void{
-        printf("server before reload. pid=%d\n", getmypid());
-    }
 
-
-
-    public function onAfterReload(\Swoole\Http\Server $server): void{
-      printf("server after reload. pid=%d\n", getmypid());
-    }
-
-    public function onClose(\Swoole\Http\Server $server, int $fd, int $reactorId): void{
-      printf("connection closed. fd=%d reactorId=%d\n", $fd, $reactorId);
-    }
-
-    public function onFinish(\Swoole\Http\Server $server, int $taskId, mixed $data): void{
-        printf("task finished. taskId=%d result=%s\n", $taskId, var_export($data, true));
-    }
 
     public function onPipeMessage(\Swoole\Http\Server $server, int $srcWorkerId, mixed $data): void{
-      //  printf("pipe message received. currentWorkerId=%d srcWorkerId=%d data=%s\n", $server->worker_id, $srcWorkerId, var_export($data, true));
+        $this->log(sprintf('pipe message received. currentWorkerId=%d srcWorkerId=%d data=%s', $server->worker_id, $srcWorkerId, var_export($data, true)));
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
