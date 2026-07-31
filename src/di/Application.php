@@ -7,6 +7,8 @@ use Yii;
 use yii\base\ExitException;
 
 class Application extends \yii\web\Application{
+
+
     public function __construct($config = []){
         parent::__construct($config);
         Coroutine::getCid()>0? Coroutine::getContext()->app=$this: Yii::$app=$this;
@@ -17,8 +19,10 @@ class Application extends \yii\web\Application{
 
     }
 
-    public function end($status = 0, $response = null)
-    {
+
+
+
+    public function end($status = 0, $response = null){
         if ($this->state === self::STATE_BEFORE_REQUEST || $this->state === self::STATE_HANDLING_REQUEST) {
             $this->state = self::STATE_AFTER_REQUEST;
             $this->trigger(self::EVENT_AFTER_REQUEST);
