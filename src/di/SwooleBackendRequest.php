@@ -84,9 +84,9 @@ class SwooleBackendRequest extends \yii\web\Request{
 
         $this->getSecureForwardedHeaderParts();
         $this->getCookies();
+        $this->setQueryParams($get);
         $this->getAbsoluteUrl();
 
-        $this->setQueryParams($get);
         $this->getBodyParams();
         $this->setRawBody($this->_request->rawContent() ?: '');
 
