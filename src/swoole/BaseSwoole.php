@@ -163,7 +163,7 @@ class BaseSwoole extends BaseObject{
 
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
 
-       printf("%s started. id=%d pid=%d\n", $workerType = $workerId >= ($workerNum = (int)($server->setting['worker_num'] ?? 0)) ? 'task-worker' : 'worker', $workerId, getmypid());
+     //  printf("%s started. id=%d pid=%d\n", $workerType = $workerId >= ($workerNum = (int)($server->setting['worker_num'] ?? 0)) ? 'task-worker' : 'worker', $workerId, getmypid());
     }
 
     public function onWorkerStop(\Swoole\Http\Server $server, int $workerId): void{
