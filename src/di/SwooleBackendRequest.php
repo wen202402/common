@@ -119,7 +119,7 @@ class SwooleBackendRequest extends \yii\web\Request{
         $_SERVER['REQUEST_SCHEME'] = $https ? 'https' : 'http';
         $_SERVER['HTTPS'] = $https ? 'on' : 'off';
 
-        unset($_SERVER['PATH_INFO']);
+    //    unset($_SERVER['PATH_INFO']);
         $this->getSecureForwardedHeaderParts();
         $this->getCookies();
         $this->getAbsoluteUrl();
@@ -130,7 +130,7 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
         $this->getPathInfo();
-      $this->resetCounter();
+        $this->resetCounter();
         Yii::$app->response->clear();
 
 
