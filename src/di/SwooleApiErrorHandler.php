@@ -14,7 +14,7 @@ use yii\helpers\VarDumper;
 
 class SwooleApiErrorHandler extends \yii\web\ErrorHandler{
 
-
+    public $exception;
     private $_memoryReserve;
 
 

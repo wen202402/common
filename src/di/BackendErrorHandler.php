@@ -21,7 +21,7 @@ use yii\web\Response;
 
 
 class BackendErrorHandler extends \yii\web\ErrorHandler{
-
+    public $exception;
 
     /**
      * @inheritDoc
