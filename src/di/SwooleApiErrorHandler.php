@@ -7,6 +7,7 @@ use Yii;
 
 use yii\base\ErrorException;
 
+use yii\base\ExitException;
 use yii\helpers\VarDumper;
 
 
@@ -127,6 +128,43 @@ class SwooleApiErrorHandler extends \yii\web\ErrorHandler{
 
       //  exit(1);
     }
+
+
+
+    public function handleException($exception)
+    {
+        if ($exception instanceof ExitException) {
+            return;
+        }
+
+        $this->exception = $exception;
+
+        $this->unregister();
+
+        if (PHP_SAPI !== 'cli') http_response_code(500);
+
+
+        try {
+            $this->logException($exception);
+            if ($this->discardExistingOutput) $this->clearOutput();
+
+            $this->renderException($exception);
+            if (!$this->silentExitOnException) {
+                \Yii::getLogger()->flush(true);
+                if (defined('HHVM_VERSION')) flush();
+
+               // exit(1);
+            }
+        } catch (\Exception $e) {
+            $this->handleFallbackExceptionMessage($e, $exception);
+        } catch (\Throwable $e) {
+
+            $this->handleFallbackExceptionMessage($e, $exception);
+        }
+
+        $this->exception = null;
+    }
+
 
 
 }
