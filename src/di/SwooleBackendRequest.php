@@ -77,7 +77,7 @@ class SwooleBackendRequest extends \yii\web\Request{
         $requestPath = (string)($server['request_uri'] ?? '/');
         $requestPath = parse_url($requestPath, PHP_URL_PATH) ?: '/';
         $requestUri = $requestPath . ($queryString !== '' ? '?' . $queryString : '');
-        
+
         $scriptFilename = ($documentRoot = rtrim((string)$document_root, DIRECTORY_SEPARATOR)) . DIRECTORY_SEPARATOR . 'index.php';
 
         $_GET = $get;
