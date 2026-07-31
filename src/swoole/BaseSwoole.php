@@ -222,10 +222,12 @@ class BaseSwoole extends BaseObject{
       return  error_log($message);
     }
 
+
+
+
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         $workerNum = (int)($server->setting['worker_num'] ?? 0);
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
-
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()));
     }
 
