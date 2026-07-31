@@ -130,7 +130,7 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
         $this->getPathInfo();
-        $this->resetCounter();
+      //  $this->resetCounter();
         Yii::$app->response->clear();
 
 
