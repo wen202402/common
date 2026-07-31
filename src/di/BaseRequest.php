@@ -67,7 +67,7 @@ class BaseRequest  extends \yii\web\Request{
         $requestPath = parse_url($requestPath, PHP_URL_PATH) ?: '/';
         $requestUri = $requestPath . ($queryString !== '' ? '?' . $queryString : '');
 
-
+        $scriptFilename = ($documentRoot = rtrim((string)$document_root, DIRECTORY_SEPARATOR)) . DIRECTORY_SEPARATOR . 'index.php';
 
         $_GET = $get;
         $_POST = $post;
@@ -88,7 +88,7 @@ class BaseRequest  extends \yii\web\Request{
             $_SERVER['HTTP_' . $serverName] = $value;
         }
 
-
+        $host = (string)($headers['host'] ?? $server['server_name'] ?? $this->host);
         $forwardedProto = strtolower((string)($headers['x-forwarded-proto'] ?? ''));
         $https = $forwardedProto === 'https' || (int)($server['server_port'] ?? 0) === 443;
 
@@ -97,9 +97,9 @@ class BaseRequest  extends \yii\web\Request{
         $_SERVER['QUERY_STRING'] = $queryString;
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['PHP_SELF'] = '/index.php';
-        $_SERVER['SCRIPT_FILENAME'] =   $scriptFilename = ($documentRoot = rtrim((string)$document_root, DIRECTORY_SEPARATOR)) . DIRECTORY_SEPARATOR . 'index.php';;
+        $_SERVER['SCRIPT_FILENAME'] = $scriptFilename;
         $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
-        $_SERVER['HTTP_HOST'] = $host = (string)($headers['host'] ?? $server['server_name'] ?? '');
+        $_SERVER['HTTP_HOST'] = $host;
         $_SERVER['SERVER_NAME'] = preg_replace('/:\d+$/', '', $host);
         $_SERVER['SERVER_PORT'] = (string)($server['server_port'] ?? ($https ? 443 : 80));
         $_SERVER['SERVER_PROTOCOL'] = (string)($server['server_protocol'] ?? 'HTTP/1.1');
@@ -115,9 +115,13 @@ class BaseRequest  extends \yii\web\Request{
 
         $this->getBodyParams();
         $this->setRawBody($this->_request->rawContent() ?: '');
+
+
+
         $this->getPathInfo();
         $this->resetCounter();
         Yii::$app->response->clear();
+
 
 
     }
