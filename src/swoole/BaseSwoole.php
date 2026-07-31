@@ -51,7 +51,7 @@ class BaseSwoole extends BaseObject{
        }*/
 
 
-    public  $logLevel;
+    public  $logLevel='warning';
 
 
     public function events(): array{
@@ -90,7 +90,8 @@ class BaseSwoole extends BaseObject{
         FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
         // $this->getIP();
-        printf("listen on http://%s:%d\n", trim(IPHelper::getServerIp())?: $server->host, $server->port);
+        error_log("listen on http://%s:%d\n", trim(IPHelper::getServerIp())?: $server->host, $server->port);
+        error_log("listen on http://%s:%d\n", $server->host, $server->port);
     }
 
 
@@ -172,7 +173,7 @@ class BaseSwoole extends BaseObject{
     }
 
     public function onClose(\Swoole\Http\Server $server, int $fd, int $reactorId): void{
-        $this->log(sprintf('connection closed. fd=%d reactorId=%d', $fd, $reactorId));
+        $this->log(sprintf('connection closed. fd=%d reactorId=%d', $fd, $reactorId),'info');
     }
 
 
@@ -210,40 +211,37 @@ class BaseSwoole extends BaseObject{
 
 
     public function onManagerStart(\Swoole\Http\Server $server): void{
-        $this->log(sprintf('manager started. pid=%d', getmypid()));
+        $this->log(sprintf('manager started. pid=%d', getmypid()).'info');
     }
 
-    public function onManagerStop(\Swoole\Http\Server $server): void
-    {
-        $this->log(sprintf('manager stopped. pid=%d', getmypid()));
-    }
-
-
-
-
-
-
-
-
-    public function onWorkerError(\Swoole\Http\Server $server, $workerId, $workerPid, $exitCode, $signal){
-       fprintf(STDERR, "worker error. id=%d pid=%d code=%d signal=%d\n", $workerId, $workerPid, $exitCode, $signal);
+    public function onManagerStop(\Swoole\Http\Server $server): void{
+        $this->log(sprintf('manager stopped. pid=%d', getmypid()),'warning');
     }
 
 
 
-    private function log(string $message, string $level = 'info'): void{
+
+
+
+
+    public function onWorkerError(\Swoole\Http\Server $server, int $workerId, int $workerPid, int $exitCode, int $signal): void{
+        $this->log(sprintf('worker error. id=%d pid=%d code=%d signal=%d', $workerId, $workerPid, $exitCode, $signal), 'warning');
+    }
+
+
+    private function log(string $message, string $clevel = 'warning'): void{
         $levels = ['debug' => 0, 'info' => 1, 'notice' => 2, 'warning' => 3, 'error' => 4, 'critical' => 5,];
 
-        $level = strtolower($level);
+        $clevel = strtolower($clevel);
         $minLevel = strtolower($this->logLevel);
 
-        if (!isset($levels[$level])) $level = 'info';
+        if (!isset($levels[$clevel])) $clevel = 'info';
         if (!isset($levels[$minLevel])) $minLevel = 'info';
-        if ($levels[$level] < $levels[$minLevel]) return;
+        if ($levels[$clevel] < $levels[$minLevel]) return;
 
         $workerId = $this->server instanceof \Swoole\Http\Server && isset($this->server->worker_id) ? $this->server->worker_id : '-';
 
-        $content = sprintf("[%s] [%s] [pid:%d] [worker:%s] %s\n", date('Y-m-d H:i:s'), strtoupper($level), getmypid(), $workerId, $message);
+        $content = sprintf("[%s] [%s] [pid:%d] [worker:%s] %s\n", date('Y-m-d H:i:s'), strtoupper($clevel), getmypid(), $workerId, $message);
 
         $logFile = $this->options['log_file'] ?? '';
 
@@ -269,7 +267,7 @@ class BaseSwoole extends BaseObject{
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         $workerNum = (int)($server->setting['worker_num'] ?? 0);
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
-        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()));
+        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
     }
 
 
@@ -278,7 +276,7 @@ class BaseSwoole extends BaseObject{
 
 
     public function onPipeMessage(\Swoole\Http\Server $server, int $srcWorkerId, mixed $data): void{
-        $this->log(sprintf('pipe message received. currentWorkerId=%d srcWorkerId=%d data=%s', $server->worker_id, $srcWorkerId, var_export($data, true)));
+        $this->log(sprintf('pipe message received. currentWorkerId=%d srcWorkerId=%d data=%s', $server->worker_id, $srcWorkerId, var_export($data, true)),'info');
     }
 
 
