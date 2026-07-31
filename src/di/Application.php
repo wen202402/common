@@ -3,6 +3,7 @@
 namespace wen202402\common\di;
 
 use Swoole\Coroutine;
+use Yii;
 use yii\base\ExitException;
 
 class Application extends \yii\web\Application{

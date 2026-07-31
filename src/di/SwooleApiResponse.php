@@ -7,7 +7,10 @@ use yii\web\Cookie;
 use yii\web\Response;
 
 class SwooleApiResponse extends Response {
+
+
     private $_response;
+
     public function getResponse() { return $this->_response; }
     public function setResponse($response) { $this->_response = $response; }
 
@@ -17,7 +20,7 @@ class SwooleApiResponse extends Response {
             foreach ($values as $value) $this->_response->header($name, $value);
         }
         $this->_response->status($this->getStatusCode());
-
+        $this->sendCookies();
     }
 
     protected function sendCookies(){
@@ -26,15 +29,7 @@ class SwooleApiResponse extends Response {
             $session = Yii::$app->getSession();
             if ($session->getIsActive() && $session->getId() !== '') {
                 $params = $session->getCookieParams();
-                $this->getCookies()->add(new Cookie([
-                    'name' => $session->name,
-                    'value' => $session->getId(),
-                    'expire' => isset($params['lifetime']) && $params['lifetime'] > 0 ? time() + $params['lifetime'] : 0,
-                    'path' => $params['path'] ?? '/',
-                    'domain' => $params['domain'] ?? '',
-                    'secure' => $params['secure'] ?? false,
-                    'httpOnly' => $params['httpOnly'] ?? true,
-                ]));
+                $this->getCookies()->add(new Cookie(['name' => $session->name, 'value' => $session->getId(), 'expire' => isset($params['lifetime']) && $params['lifetime'] > 0 ? time() + $params['lifetime'] : 0, 'path' => $params['path'] ?? '/', 'domain' => $params['domain'] ?? '', 'secure' => $params['secure'] ?? false, 'httpOnly' => $params['httpOnly'] ?? true,]));
             }
         }
 
@@ -47,6 +42,13 @@ class SwooleApiResponse extends Response {
         }
     }
 
+
+
+
+
+
+
+
     public function send(){
         if ($this->isSent) return;
         $this->trigger(self::EVENT_BEFORE_SEND);
@@ -58,15 +60,13 @@ class SwooleApiResponse extends Response {
         $this->isSent = true;
     }
 
-
-
     protected function sendContent(){
         if ($this->stream === null) {
             $this->_response->end($this->content);
             return;
         }
 
-        set_time_limit(0);
+        set_time_limit(0);                                                                //todo
         $chunkSize = 8 * 1024 * 1024;
 
         if (is_array($this->stream)) {
@@ -78,13 +78,23 @@ class SwooleApiResponse extends Response {
             }
             fclose($handle);
         } else {
-            while (!feof($this->stream)) {
-                $this->_response->write(fread($this->stream, $chunkSize));
-            }
+            while (!feof($this->stream)) $this->_response->write(fread($this->stream, $chunkSize));
+
             fclose($this->stream);
         }
         $this->_response->end();
     }
+
+
+
+
+
+
+
+
+
+
+
     public static $httpStatuses = [
         100 => 'Continue',
         101 => 'Switching Protocols',

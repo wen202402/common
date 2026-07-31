@@ -5,7 +5,7 @@ namespace wen202402\common\di;
 use Swoole\Coroutine;
 use yii\BaseYii;
 
-class Yii extends BaseYii {
+class Yiix extends BaseYii {
 
 
 

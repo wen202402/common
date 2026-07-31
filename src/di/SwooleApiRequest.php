@@ -4,54 +4,28 @@ namespace wen202402\common\di;
 
 
 use wen202402\common\helper\I8n;
+
 use Yii;
-use yii\base\InvalidConfigException;
 use yii\web\ForbiddenHttpException;
 
 class SwooleApiRequest extends \yii\web\Request{
     public $csrfParam='_csrf-api';
+
     public $enableCsrfCookie=false;
     public $enableCsrfValidation=false;
     public $enableCookieValidation = false;
 
   //  public $cookieValidationKey="0NKw4OTRRY-z7ygTqXKshbPzJNj14psV";                                                      //   echo Yii::$app->security->generateRandomString(32);
-    public $parsers=[
-        'application/json' => \yii\web\JsonParser::class,     //   'text/json' => \yii\web\JsonParser::class,
-     ];
+    public $parsers=['application/json' => \yii\web\JsonParser::class,];  //   'text/json' => \yii\web\JsonParser::class,
+
+
+
     /**
      * @var \Swoole\Http\Request
      */
     private $_request;
 
 
-    private $_document_root;
-
-
-
-
-
-    public function setMethod($method){
-        $_SERVER['REQUEST_METHOD'] = strtoupper($method ?? 'GET');
-    }
-
-
-
-
-
-    public function setHeaders($headers){
-        $yheaders = $this->getHeaders();
-        foreach ($headers ?? [] as $name => $value) $yheaders->set($name, $value);
-    }
-
-
-    public function setRequestUri($uri){
-        $this->_requestUri = $uri;
-        $_SERVER['REQUEST_URI'] = $uri;
-    }
-
-
-
-    //  public $parsers = ['application/json' => \yii\web\JsonParser::class,];
 
 
 
@@ -66,17 +40,21 @@ class SwooleApiRequest extends \yii\web\Request{
         return $this->_request;
     }
 
+
+
+
+
     /**
      * @param \Swoole\Http\Request $request
      */
-    public function setRequest($request, $document_root){
+    public function setRequest($request){
         $this->_request = $request;
-        $this->_document_root = $document_root;
         $this->setupHeaders();
         $this->setupGlobalVars();
 
 
     }
+
 
     protected function setupHeaders(){
         $this->headers->removeAll();
@@ -85,7 +63,6 @@ class SwooleApiRequest extends \yii\web\Request{
             $this->headers->add($name, $value);
         }
     }
-
 
 
 
@@ -107,25 +84,30 @@ class SwooleApiRequest extends \yii\web\Request{
 
         foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
         foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
-        $requestUri = $server['request_uri'] ?? '/';
 
-        $_SERVER['REQUEST_METHOD'] = strtoupper($server['request_method'] ?? 'GET');
 
-        $_SERVER['QUERY_STRING'] = $queryString = $server['query_string'] ?? http_build_query($get);
+        $this->getSecureForwardedHeaderParts();
+        $this->getCookies();
+        $this->getAbsoluteUrl();
 
-        $_SERVER['REQUEST_URI'] = $requestUri . ($queryString !== '' && !str_contains($requestUri, '?') ? '?' . $queryString : '');
-
-        $_SERVER['PATH_INFO'] = $pathInfo = parse_url($requestUri, PHP_URL_PATH) ?: '/';
-        $_SERVER['SCRIPT_NAME']     =   $scriptName =$server['script_name'] ?? '/index.php';
         $this->setQueryParams($get);
-        $this->setBodyParams($post);
+        $this->getBodyParams();
         $this->setRawBody($this->_request->rawContent() ?: '');
 
-        $this->setUrl($_SERVER['REQUEST_URI']);
-        $this->setPathInfo($pathInfo);
+
+
+        $this->getPathInfo();
+        $this->resetCounter();
+        Yii::$app->response->clear();
     }
 
 
+    private function resetCounter(){
+        $ref = new \ReflectionClass(\yii\data\BaseDataProvider::class);
+        $prop = $ref->getProperty('counter');
+        $prop->setValue(0);
+
+    }
 
 
 
@@ -172,7 +154,10 @@ class SwooleApiRequest extends \yii\web\Request{
         "wp-includes",
         //    "baidu.com",
     ];
-    public $_requestUri;
+
+
+
+
 
 
     public function handleFailure(){
@@ -180,7 +165,7 @@ class SwooleApiRequest extends \yii\web\Request{
         header("http/1.1 403 Forbidden");
         http_response_code(403);
         throw new ForbiddenHttpException(I8n::api('forbidden') );
-
+        //   exit();
     }
 
 
@@ -197,32 +182,6 @@ class SwooleApiRequest extends \yii\web\Request{
         foreach ($expect as $v) if (isset($posts[$v])) unset($posts[$v]);
         return empty($posts)?'':json_encode($posts);
     }
-
-
-
-
-
-
-
-
-    protected function loadCookies(){
-        $cookies = [];
-        if (!$this->enableCookieValidation) {
-            if (!empty($_COOKIE))  foreach ($_COOKIE as $name => $value) $cookies[$name] = Yii::createObject(['class' => \yii\web\Cookie::class, 'name' => $name, 'value' => $value, 'expire' => null,]);
-            return $cookies;
-        }
-        if ($this->cookieValidationKey == '') throw new InvalidConfigException(get_class($this) . '::cookieValidationKey must be configured with a secret key.');
-        foreach ($_COOKIE as $name => $value) {
-            if (!is_string($value)) continue;
-            if (($data = Yii::$app->getSecurity()->validateData($value, $this->cookieValidationKey)) === false) continue;
-            $data = (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70000) ? @unserialize($data, ['allowed_classes' => false]): @unserialize($data);
-            if (is_array($data) && isset($data[0], $data[1]) && $data[0] === $name) $cookies[$name] = Yii::createObject(['class' => \yii\web\Cookie::class, 'name' => $name, 'value' => $data[1], 'expire' => null,]);
-
-        }
-        return $cookies;
-    }
-
-
 
 
 

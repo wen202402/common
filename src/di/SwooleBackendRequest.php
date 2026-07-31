@@ -4,20 +4,14 @@ namespace wen202402\common\di;
 
 use wen202402\common\helper\I8n;
 
+use Yii;
 use yii\web\ForbiddenHttpException;
 
-/**
- * Swoole Request Proxy
- * @package swoole\foundation\web
- */
 
 
 
 
-/**
- * Swoole Request Proxy
- * @package swoole\foundation\web
- */
+
 class SwooleBackendRequest extends \yii\web\Request{
     /**
      * @var \Swoole\Http\Request
@@ -189,18 +183,6 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
 
-
-    public function setMethod($method){
-        $_SERVER['REQUEST_METHOD'] = strtoupper($method ?? 'GET');
-    }
-
-
-
-
-    public function setHeaders($headers){
-        $yheaders = $this->getHeaders();
-        foreach ($headers ?? [] as $name => $value) $yheaders->set($name, $value);
-    }
 
 
 
