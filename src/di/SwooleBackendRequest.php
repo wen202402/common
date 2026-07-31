@@ -69,14 +69,12 @@ class SwooleBackendRequest extends \yii\web\Request{
         $files = is_array($request->files ?? null) ? $request->files : [];
         $cookies = is_array($request->cookie ?? null) ? $request->cookie : [];
 
-        $queryString = (string)($server['query_string'] ?? '');
 
-        if ($get === [] && $queryString !== '') parse_str($queryString, $get);
+        if ($get === [] && ($queryString = (string)($server['query_string'] ?? '')) !== '') parse_str($queryString, $get);
         if ($queryString === '' && $get !== []) $queryString = http_build_query($get);
 
-        $requestPath = (string)($server['request_uri'] ?? '/');
-        $requestPath = parse_url($requestPath, PHP_URL_PATH) ?: '/';
-        $requestUri = $requestPath . ($queryString !== '' ? '?' . $queryString : '');
+
+        $requestUri = ($requestPath = parse_url( (string)($server['request_uri'] ?? '/'), PHP_URL_PATH) ?: '/') . ($queryString !== '' ? '?' . $queryString : '');
 
         $scriptFilename = ($documentRoot = rtrim((string)$document_root, DIRECTORY_SEPARATOR)) . DIRECTORY_SEPARATOR . 'index.php';
 
