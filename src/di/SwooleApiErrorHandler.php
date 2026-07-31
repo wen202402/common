@@ -4,38 +4,11 @@ namespace wen202402\common\di;
 
 use Yii;
 
-use Error;
-use Exception;
-use Throwable;
 
 use yii\base\ErrorException;
-use yii\base\InvalidRouteException;
-use yii\base\UserException;
-use yii\console\Controller;
-use yii\console\UnknownCommandException;
 
-use yii\helpers\Console;
 use yii\helpers\VarDumper;
 
-use yii\web\Response;
-
-
-
-use yii\base\ExitException;
-
-
-use yii\db\StaleObjectException;
-
-use yii\web\ErrorHandler;
-
-use yii\web\NotFoundHttpException;
-
-use yii\web\UnauthorizedHttpException;
-use yii\web\TooManyRequestsHttpException;
-use yii\web\MethodNotAllowedHttpException;
-
-
-use yii\web\ForbiddenHttpException;
 
 
 class SwooleApiErrorHandler extends \yii\web\ErrorHandler{
