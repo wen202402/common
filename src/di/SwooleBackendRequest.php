@@ -81,7 +81,7 @@ class SwooleBackendRequest extends \yii\web\Request{
         $_POST = $post;
         $_FILES = $files;
         $_COOKIE = $cookies;
-        $_SERVER = [];
+ 
 
         foreach ($server as $key => $value) $_SERVER[strtoupper($key)] = $value;
         foreach ($headers as $key => $value) $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
