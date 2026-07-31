@@ -43,10 +43,10 @@ class SwooleBackendRequest extends \yii\web\Request{
     /**
      * @param \Swoole\Http\Request $request
      */
-    public function setRequest($request){
+    public function setRequest($request,$document_root){
         $this->_request = $request;
         $this->setupHeaders();
-        $this->setupGlobalVars($request);
+        $this->setupGlobalVars($request,$document_root);
 
 
     }
@@ -60,7 +60,7 @@ class SwooleBackendRequest extends \yii\web\Request{
         }
     }
 
-    protected function setupGlobalVars(\Swoole\Http\Request $request): void{
+    protected function setupGlobalVars(\Swoole\Http\Request $request,$document_root): void{
         $server = is_array($request->server ?? null) ? $request->server : [];
         $headers = is_array($request->header ?? null) ? $request->header : [];
 
@@ -77,9 +77,8 @@ class SwooleBackendRequest extends \yii\web\Request{
         $requestPath = (string)($server['request_uri'] ?? '/');
         $requestPath = parse_url($requestPath, PHP_URL_PATH) ?: '/';
         $requestUri = $requestPath . ($queryString !== '' ? '?' . $queryString : '');
-
-        $documentRoot = rtrim((string)$this->options['document_root'], DIRECTORY_SEPARATOR);
-        $scriptFilename = $documentRoot . DIRECTORY_SEPARATOR . 'index.php';
+        
+        $scriptFilename = ($documentRoot = rtrim((string)$document_root, DIRECTORY_SEPARATOR)) . DIRECTORY_SEPARATOR . 'index.php';
 
         $_GET = $get;
         $_POST = $post;
