@@ -13,10 +13,10 @@ use yii\base\InvalidConfigException;
 class BaseSwoole extends BaseObject{
     public $mode     = SWOOLE_PROCESS;
     public $sockType = SWOOLE_SOCK_TCP;
-    public $document_root ;
+    public $document_root;
     public $host     = '0.0.0.0';
     public $cpu =0.6;
-    public $options = [
+    public $options  = [
         'pid_file' =>  'backend/runtime/swoole.pid',
         'log_file' =>    'backend/runtime/swoole.log',
         'worker_num' => 1,                                                           //建议：部署后用监控工具（如 Prometheus + Grafana）观测数据库连接数和 Redis 内存占用，再根据实际情况调整 Worker 数量。
@@ -51,8 +51,10 @@ class BaseSwoole extends BaseObject{
        }*/
 
 
-    public function events(): array
-    {
+    public  $logLevel;
+
+
+    public function events(): array{
         return [
             'start' => [$this, 'onStart'],
             'managerStart' => [$this, 'onManagerStart'],
@@ -89,7 +91,6 @@ class BaseSwoole extends BaseObject{
         FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
         // $this->getIP();
         printf("listen on http://%s:%d\n", trim(IPHelper::getServerIp())?: $server->host, $server->port);
-
     }
 
 
@@ -103,6 +104,7 @@ class BaseSwoole extends BaseObject{
             $this->server = new \Swoole\Http\Server($this->host, $this->port, $this->mode, $this->sockType);
             $this->server->set($this->options);
         }
+
 
         foreach ($this->events() as $event => $callback) {
             if (!is_callable($callback))continue;
@@ -121,9 +123,7 @@ class BaseSwoole extends BaseObject{
     public $appName = 'backend';
 
     public function setOption(): void{
-        $docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        $appRoot = $docroot . $this->appName . DIRECTORY_SEPARATOR;
-
+        $appRoot = ($docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) . $this->appName . DIRECTORY_SEPARATOR;
         $this->options['pid_file'] = $appRoot . 'runtime/swoole.pid';
         $this->options['log_file'] = $appRoot . 'runtime/swoole.log';
         $this->options['worker_num'] = (int)(swoole_cpu_num() * $this->cpu) ?: 2;
@@ -142,6 +142,9 @@ class BaseSwoole extends BaseObject{
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
         $application->run();
     }
+
+
+
 
     public function onTask(\Swoole\Http\Server $server, $taskId, $workerId, $data){
         try {
@@ -163,40 +166,50 @@ class BaseSwoole extends BaseObject{
         try {
             if (Yii::$app !== null && Yii::$app->has('db') && Yii::$app->db->isActive) Yii::$app->db->close();
             if (Yii::$app !== null && Yii::$app->has('redis')) Yii::$app->redis->close();
-        } catch (Throwable $e) {
-            $this->log(sprintf('worker cleanup error. id=%d message=%s', $workerId, $e->getMessage()));
-        }
+        } catch (Throwable $e) { $this->log(sprintf('worker cleanup error. id=%d message=%s', $workerId, $e->getMessage()));}
 
         $this->log(sprintf('worker stopped. id=%d pid=%d', $workerId, getmypid()));
     }
 
-    public function onClose(\Swoole\Http\Server $server, int $fd, int $reactorId): void
-    {
+    public function onClose(\Swoole\Http\Server $server, int $fd, int $reactorId): void{
         $this->log(sprintf('connection closed. fd=%d reactorId=%d', $fd, $reactorId));
     }
 
-    public function onFinish(\Swoole\Http\Server $server, int $taskId, mixed $data): void
-    {
+
+
+
+
+
+
+
+
+    public function onFinish(\Swoole\Http\Server $server, int $taskId, mixed $data): void{
         $this->log(sprintf('task finished. taskId=%d result=%s', $taskId, var_export($data, true)));
     }
 
-    public function onBeforeReload(\Swoole\Http\Server $server): void
-    {
+    public function onBeforeReload(\Swoole\Http\Server $server): void{
         $this->log(sprintf('server before reload. pid=%d', getmypid()));
     }
 
-    public function onAfterReload(\Swoole\Http\Server $server): void
-    {
+    public function onAfterReload(\Swoole\Http\Server $server): void{
         $this->log(sprintf('server after reload. pid=%d', getmypid()));
     }
 
-    public function onShutdown(\Swoole\Http\Server $server): void
-    {
+
+
+
+    public function onShutdown(\Swoole\Http\Server $server): void{
         $this->log(sprintf('server shutdown. pid=%d', getmypid()));
     }
 
-    public function onManagerStart(\Swoole\Http\Server $server): void
-    {
+
+
+
+
+
+
+
+    public function onManagerStart(\Swoole\Http\Server $server): void{
         $this->log(sprintf('manager started. pid=%d', getmypid()));
     }
 
@@ -218,9 +231,37 @@ class BaseSwoole extends BaseObject{
 
 
 
-    private function log(string $message){
-      return  error_log($message);
+    private function log(string $message, string $level = 'info'): void{
+        $levels = ['debug' => 0, 'info' => 1, 'notice' => 2, 'warning' => 3, 'error' => 4, 'critical' => 5,];
+
+        $level = strtolower($level);
+        $minLevel = strtolower($this->logLevel);
+
+        if (!isset($levels[$level])) $level = 'info';
+        if (!isset($levels[$minLevel])) $minLevel = 'info';
+        if ($levels[$level] < $levels[$minLevel]) return;
+
+        $workerId = $this->server instanceof \Swoole\Http\Server && isset($this->server->worker_id) ? $this->server->worker_id : '-';
+
+        $content = sprintf("[%s] [%s] [pid:%d] [worker:%s] %s\n", date('Y-m-d H:i:s'), strtoupper($level), getmypid(), $workerId, $message);
+
+        $logFile = $this->options['log_file'] ?? '';
+
+        if ($logFile !== '') {
+            error_log($content, 3, $logFile);
+            return;
+        }
+
+        error_log(rtrim($content));
     }
+
+
+
+
+
+
+
+
 
 
 
