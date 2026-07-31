@@ -65,6 +65,11 @@ class SwooleBackendRequest extends \yii\web\Request{
 
 
     protected function setupGlobalVars(): void{
+        $_GET = [];
+        $_POST = [];
+        $_FILES = [];
+        $_COOKIE = [];
+        $_SERVER = [];
         $server = $this->_request->server ?? [];
         $headers = $this->_request->header ?? [];
 
