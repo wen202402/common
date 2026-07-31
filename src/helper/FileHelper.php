@@ -15,7 +15,7 @@ class FileHelper extends \yii\helpers\FileHelper{
         $dir= \Yii::getAlias($dir);
         @mkdir( $dir, 0755, true);
       #  @chmod($dir, 0775);
-         error_log("chmod755-------------------------nd------------\n");
+         error_log("chmod755-------------------------end------------\n");
     }
 
 
