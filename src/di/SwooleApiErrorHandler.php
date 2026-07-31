@@ -158,7 +158,6 @@ class SwooleApiErrorHandler extends \yii\web\ErrorHandler{
         } catch (\Exception $e) {
             $this->handleFallbackExceptionMessage($e, $exception);
         } catch (\Throwable $e) {
-
             $this->handleFallbackExceptionMessage($e, $exception);
         }
 
