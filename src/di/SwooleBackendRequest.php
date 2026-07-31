@@ -7,7 +7,7 @@ namespace wen202402\common\di;
 
 class SwooleBackendRequest extends BaseRequest{
 
-    public $enableCookieValidation = false;
+    public $enableCookieValidation = true;
 
     public $csrfParam = '_csrf-backend';
 
