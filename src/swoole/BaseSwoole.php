@@ -246,9 +246,6 @@ class BaseSwoole extends BaseObject{
         $logFile = $this->options['log_file'] ?? '';
 
         if ($logFile !== '') error_log($content, 3, $logFile);
-
-
-
         error_log(rtrim($content));
     }
 
