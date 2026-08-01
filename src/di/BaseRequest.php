@@ -108,9 +108,7 @@ class BaseRequest  extends \yii\web\Request{
         $this->getCookies();
         $this->getAbsoluteUrl();
         $this->getBodyParams();
-        $this->setRawBody($this->_request->rawContent() ?: '');
-
-
+        $this->setRawBody((string)($this->_request->rawContent() ?: ''));
 
         $this->getPathInfo();
         $this->resetCounter();
