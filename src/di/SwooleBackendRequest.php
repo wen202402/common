@@ -7,7 +7,7 @@ namespace wen202402\common\di;
 
 class SwooleBackendRequest extends BaseRequest{
 
-    public $enableCookieValidation = true;                                                              //必须false 否则会导致登录又退出
+    public $enableCookieValidation = false;                                                              //必须false 否则会导致登录又退出
     public $csrfParam = '_csrf-backend';
    // public $parsers = ['application/json' => \yii\web\JsonParser::class,];
 
