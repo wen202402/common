@@ -39,9 +39,10 @@ class BaseRequest  extends \yii\web\Request{
 
     protected function setupHeaders(){
         $this->headers->removeAll();
-        foreach ($this->_request->header as $name => $value) {
+        if (!is_array($raw = $this->_request->header ?? [])) $raw = [];
+        foreach ($raw as $name => $value) {
             $name = str_replace(' ', '-', ucwords(strtolower(str_replace('-', ' ', $name))));
-            $this->headers->add($name, $value);
+            $this->headers->add($name, (string)$value);
         }
     }
 
@@ -109,12 +110,8 @@ class BaseRequest  extends \yii\web\Request{
         $this->getAbsoluteUrl();
         $this->getBodyParams();
         $this->setRawBody((string)($this->_request->rawContent() ?: ''));
-
         $this->getPathInfo();
         $this->resetCounter();
-
-
-
 
     }
 
@@ -124,6 +121,8 @@ class BaseRequest  extends \yii\web\Request{
         $prop->setValue(0);
 
     }
+
+
 
 
     public function handleFailure(){
