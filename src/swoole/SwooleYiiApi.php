@@ -16,13 +16,4 @@ class SwooleYiiApi extends BaseSwoole{
 
 
 
-
-
-
-
-
-
-
-
-
 }

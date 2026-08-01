@@ -9,9 +9,6 @@ class SwooleApiResponse extends BaseResponse {
 
 
 
-
-
-
     public static $httpStatuses = [
         100 => 'Continue',
         101 => 'Switching Protocols',

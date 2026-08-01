@@ -16,10 +16,4 @@ class SwooleYiiBackend extends BaseSwoole{
 
 
 
-
-
-
-
-
-
 }

@@ -13,9 +13,6 @@ class SwooleBackendRequest extends BaseRequest{
 
 
 
-
-
-
     const refuse = [
         'CensysInspect',
     ];
@@ -59,16 +56,6 @@ class SwooleBackendRequest extends BaseRequest{
         "wp-includes",
         //    "baidu.com",
     ];
-
-
-
-
-
-
-
-
-
-
 
 
 
