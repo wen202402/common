@@ -158,6 +158,7 @@
       <workItem from="1785479001091" duration="21318000" />
       <workItem from="1785507648280" duration="9000" />
       <workItem from="1785532557321" duration="2775000" />
+      <workItem from="1785535715617" duration="3223000" />
     </task>
     <servers />
   </component>
@@ -171,11 +172,6 @@
           <url>file://$PROJECT_DIR$/src/helper/SafeHelper.php</url>
           <line>4</line>
           <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/src/di/SwooleBackendRequest.php</url>
-          <line>81</line>
-          <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/vendor/yiisoft/yii2/data/BaseDataProvider.php</url>
