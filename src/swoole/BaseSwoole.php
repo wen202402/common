@@ -79,7 +79,7 @@ class BaseSwoole extends BaseObject{
     }
 
 
-    public function startTime(){
+    public function startTimer(){
     }
 
 
@@ -105,7 +105,7 @@ class BaseSwoole extends BaseObject{
         if (empty($app=$this->app)) throw new InvalidConfigException('The "app" property must be set.');
         $this->setOption();
         $this->startQueue();
-        $this->startTime();
+
 
         if (!$this->server instanceof \Swoole\Http\Server) {
             $this->server = new \Swoole\Http\Server($this->host, $this->port, $this->mode, $this->sockType);
@@ -220,7 +220,9 @@ class BaseSwoole extends BaseObject{
 
 
     public function onManagerStart(\Swoole\Http\Server $server): void{
+        $this->startTimer();
         $this->log(sprintf('manager started. pid=%d', getmypid()).'info');
+
     }
 
     public function onManagerStop(\Swoole\Http\Server $server): void{
