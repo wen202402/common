@@ -73,14 +73,16 @@ class BaseSwoole extends BaseObject{
 
 
 
-    public function startQueue(){
 
+
+    public function startQueue(){
     }
 
 
 
-    public function onStart(\Swoole\Http\Server $server){
 
+
+    public function onStart(\Swoole\Http\Server $server){
         $this->makeDir();
         $this->startQueue();
         $this->log(sprintf('listen on http://%s:%d', trim(IPHelper::getServerIp())?: $server->host, $server->port));
@@ -144,6 +146,9 @@ class BaseSwoole extends BaseObject{
         if (method_exists($application->request, 'setRequest')) $application->request->setRequest($request,$document_root);
         if (method_exists($application->response, 'setResponse')) $application->response->setResponse($response);
         $application->run();
+        Yii::$app=null;
+        unset($application);
+
     }
 
 
@@ -156,14 +161,12 @@ class BaseSwoole extends BaseObject{
             return call_user_func_array([$obj, $action], $params);
         } catch (Throwable $e) {
             if (Yii::$app && Yii::$app->errorHandler) Yii::$app->errorHandler->handleException($e);
-
             return 1;
         }
     }
 
 
-    public function onWorkerStop(\Swoole\Http\Server $server, int $workerId): void
-    {
+    public function onWorkerStop(\Swoole\Http\Server $server, int $workerId): void{
         try {
             if (Yii::$app !== null && Yii::$app->has('db') && Yii::$app->db->isActive) Yii::$app->db->close();
             if (Yii::$app !== null && Yii::$app->has('redis')) Yii::$app->redis->close();

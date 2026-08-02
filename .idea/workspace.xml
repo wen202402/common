@@ -5,8 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/di/BaseRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/di/BaseRequest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/swoole/BaseSwoole.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/swoole/BaseSwoole.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -166,6 +164,7 @@
       <workItem from="1785544815697" duration="2110000" />
       <workItem from="1785552490510" duration="10000" />
       <workItem from="1785631703836" duration="3119000" />
+      <workItem from="1785660398945" duration="1337000" />
     </task>
     <servers />
   </component>
@@ -192,12 +191,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>220</line>
+          <line>218</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>245</line>
+          <line>243</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
@@ -207,7 +206,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>266</line>
+          <line>264</line>
           <properties>
             <option name="className" value="\wen202402\common\swoole\BaseSwoole" />
             <option name="methodName" value="onWorkerStart" />

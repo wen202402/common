@@ -11,8 +11,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UrlNormalizerRedirectException;
 
-class Application extends \yii\web\Application
-{
+class Application extends \yii\web\Application{
     public function __construct($config = []){
         parent::__construct($config);
         Coroutine::getCid() > 0 ? Coroutine::getContext()->app = $this : Yii::$app = $this;
