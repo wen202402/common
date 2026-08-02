@@ -14,6 +14,7 @@ class BaseSwoole extends BaseObject{
     public $mode     = SWOOLE_PROCESS;
     public $sockType = SWOOLE_SOCK_TCP;
     public $document_root;
+    public $appName = 'backend';
     public $host     = '0.0.0.0';
     public $cpu =0.6;
     public $options  = [
@@ -40,39 +41,29 @@ class BaseSwoole extends BaseObject{
      */
     public $server;
 
-    /*   public function events(){
-           return [
-               'start'       => [$this, 'onStart'],
-               'workerStart' => [$this, 'onWorkerStart'],
-               'workerError' => [$this, 'onWorkerError'],
-               'request'     => [$this, 'onRequest'],
-               'task'        => [$this, 'onTask']
-           ];
-       }*/
 
 
     public  $logLevel='warning';
 
 
-    public function events(): array{
+    public function events(): array {
         return [
-            'start' => [$this, 'onStart'],
-            'managerStart' => [$this, 'onManagerStart'],
-            'workerStart' => [$this, 'onWorkerStart'],
-            'request' => [$this, 'onRequest'],
-            'Close' => [$this, 'onClose'],
-            'task' => [$this, 'onTask'],
-            'finish' => [$this, 'onFinish'],
-            'pipeMessage' => [$this, 'onPipeMessage'],
-            'beforeReload' => [$this, 'onBeforeReload'],
-            'afterReload' => [$this, 'onAfterReload'],
-            'workerStop' => [$this, 'onWorkerStop'],
-            'workerError' => [$this, 'onWorkerError'],
-            'managerStop' => [$this, 'onManagerStop'],
-            'shutdown' => [$this, 'onShutdown'],
+            'start'          => [$this, 'onStart'],
+            'managerStart'   => [$this, 'onManagerStart'],
+            'workerStart'    => [$this, 'onWorkerStart'],
+            'request'        => [$this, 'onRequest'],
+            'close'          => [$this, 'onClose'],
+            'task'           => [$this, 'onTask'],
+            'finish'         => [$this, 'onFinish'],
+            'pipeMessage'    => [$this, 'onPipeMessage'],
+            'beforeReload'   => [$this, 'onBeforeReload'],
+            'afterReload'    => [$this, 'onAfterReload'],
+            'workerStop'     => [$this, 'onWorkerStop'],
+            'workerError'    => [$this, 'onWorkerError'],
+            'managerStop'    => [$this, 'onManagerStop'],
+            'shutdown'       => [$this, 'onShutdown'],
         ];
     }
-
 
 
 
@@ -82,20 +73,27 @@ class BaseSwoole extends BaseObject{
 
 
 
+    public function startQueue(){
+
+    }
+
+
 
     public function onStart(\Swoole\Http\Server $server){
-        $app=$this->app;
-        FileHelper::chmod755($app['aliases']['@webroot'] . DIRECTORY_SEPARATOR . 'assets');
-        FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'modules');
-        FileHelper::chmod755($app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
-        FileHelper::chmod755($app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
-        // $this->getIP();
+
+        $this->makeDir();
+        $this->startQueue();
         $this->log(sprintf('listen on http://%s:%d', trim(IPHelper::getServerIp())?: $server->host, $server->port));
         $this->log(sprintf('listen on http://%s:%d', $server->host, $server->port));
     }
 
 
-
+    public function makeDir(){
+        FileHelper::chmod755($this->app['aliases']['@webroot'] . DIRECTORY_SEPARATOR . 'assets');
+        FileHelper::chmod755($this->app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'modules');
+        FileHelper::chmod755($this->app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
+        FileHelper::chmod755($this->app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
+    }
 
     public function init(){
         parent::init();
@@ -121,15 +119,18 @@ class BaseSwoole extends BaseObject{
 
 
 
-    public $appName = 'backend';
 
-    public function setOption(): void{
-        $appRoot = ($docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) . $this->appName . DIRECTORY_SEPARATOR;
-        $this->options['pid_file'] = $appRoot . 'runtime/swoole.pid';
-        $this->options['log_file'] = $appRoot . 'runtime/swoole.log';
-        $this->options['worker_num'] = (int)(swoole_cpu_num() * $this->cpu) ?: 2;
+    public function setOption(): void {
+        $appRoot                        = ($docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) . $this->appName . DIRECTORY_SEPARATOR;
+        $this->options['pid_file']      = $appRoot . 'runtime/swoole.pid';
+        $this->options['log_file']      = $appRoot . 'runtime/swoole.log';
+        $this->options['worker_num']    = (int)(swoole_cpu_num() * $this->cpu) ?: 2;
         $this->options['document_root'] = $appRoot . 'web';
     }
+
+
+
+
 
 
 
@@ -144,8 +145,6 @@ class BaseSwoole extends BaseObject{
         if (method_exists($application->response, 'setResponse')) $application->response->setResponse($response);
         $application->run();
     }
-
-
 
 
     public function onTask(\Swoole\Http\Server $server, $taskId, $workerId, $data){
@@ -230,7 +229,7 @@ class BaseSwoole extends BaseObject{
     }
 
 
-    private function log(string $message, string $clevel = 'warning'): void{
+    public function log(string $message, string $clevel = 'warning'): void{
         $levels = ['debug' => 0, 'info' => 1, 'notice' => 2, 'warning' => 3, 'error' => 4, 'critical' => 5,];
 
         $clevel = strtolower($clevel);
