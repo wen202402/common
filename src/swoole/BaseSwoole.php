@@ -84,7 +84,7 @@ class BaseSwoole extends BaseObject{
 
     public function onStart(\Swoole\Http\Server $server){
         $this->makeDir();
-
+        $this->startQueue();
         $this->log(sprintf('listen on http://%s:%d', trim(IPHelper::getServerIp())?: $server->host, $server->port));
         $this->log(sprintf('listen on http://%s:%d', $server->host, $server->port));
     }
@@ -101,7 +101,6 @@ class BaseSwoole extends BaseObject{
         parent::init();
         if (empty($app=$this->app)) throw new InvalidConfigException('The "app" property must be set.');
         $this->setOption();
-        $this->startQueue();
         if (!$this->server instanceof \Swoole\Http\Server) {
             $this->server = new \Swoole\Http\Server($this->host, $this->port, $this->mode, $this->sockType);
             $this->server->set($this->options);
