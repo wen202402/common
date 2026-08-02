@@ -79,6 +79,9 @@ class BaseSwoole extends BaseObject{
     }
 
 
+    public function startTime(){
+    }
+
 
 
 
@@ -102,6 +105,8 @@ class BaseSwoole extends BaseObject{
         if (empty($app=$this->app)) throw new InvalidConfigException('The "app" property must be set.');
         $this->setOption();
         $this->startQueue();
+        $this->startTime();
+
         if (!$this->server instanceof \Swoole\Http\Server) {
             $this->server = new \Swoole\Http\Server($this->host, $this->port, $this->mode, $this->sockType);
             $this->server->set($this->options);
