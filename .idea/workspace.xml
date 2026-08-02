@@ -164,6 +164,7 @@
       <workItem from="1785631703836" duration="3119000" />
       <workItem from="1785660398945" duration="1337000" />
       <workItem from="1785667823894" duration="763000" />
+      <workItem from="1785677261854" duration="5127000" />
     </task>
     <servers />
   </component>
@@ -190,27 +191,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>219</line>
+          <line>269</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>244</line>
+          <line>294</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>141</line>
+          <line>145</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>148</line>
+          <line>152</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>265</line>
+          <line>315</line>
           <properties>
             <option name="className" value="\wen202402\common\swoole\BaseSwoole" />
             <option name="methodName" value="onWorkerStart" />
