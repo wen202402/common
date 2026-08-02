@@ -214,7 +214,7 @@ class BaseSwoole extends BaseObject{
 
 
 
-    public function startProcess($cmd,$jobs,$procs,$pids){
+    public function startProcess($cmd,$jobs){
         $procs = ['queue' => null, 'cron'  => null,];
         $pids  = ['queue' => null, 'cron'  => null,];
         $startJob = function(string $name) use ($cmd, $jobs, &$procs, &$pids) {
