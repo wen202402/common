@@ -2,7 +2,6 @@
 
 namespace wen202402\common\swoole;
 
-use Throwable;
 
 
 

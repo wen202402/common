@@ -214,6 +214,7 @@ class BaseSwoole extends BaseObject{
 
 
     public function onManagerStart(\Swoole\Http\Server $server): void{
+        $this->startQueue();
         $this->log(sprintf('manager started. pid=%d', getmypid()).'info');
     }
 
@@ -266,7 +267,7 @@ class BaseSwoole extends BaseObject{
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         $workerNum = (int)($server->setting['worker_num'] ?? 0);
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
-        if ($workerId == 0)  $this->startQueue();
+
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
     }
 
