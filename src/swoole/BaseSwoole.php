@@ -101,6 +101,7 @@ class BaseSwoole extends BaseObject{
         parent::init();
         if (empty($app=$this->app)) throw new InvalidConfigException('The "app" property must be set.');
         $this->setOption();
+        $this->startQueue();
         if (!$this->server instanceof \Swoole\Http\Server) {
             $this->server = new \Swoole\Http\Server($this->host, $this->port, $this->mode, $this->sockType);
             $this->server->set($this->options);
@@ -214,7 +215,6 @@ class BaseSwoole extends BaseObject{
 
 
     public function onManagerStart(\Swoole\Http\Server $server): void{
-        $this->startQueue();
         $this->log(sprintf('manager started. pid=%d', getmypid()).'info');
     }
 
