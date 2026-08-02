@@ -84,7 +84,7 @@ class BaseSwoole extends BaseObject{
 
     public function onStart(\Swoole\Http\Server $server){
         $this->makeDir();
-        $this->startQueue();
+
         $this->log(sprintf('listen on http://%s:%d', trim(IPHelper::getServerIp())?: $server->host, $server->port));
         $this->log(sprintf('listen on http://%s:%d', $server->host, $server->port));
     }
@@ -266,6 +266,7 @@ class BaseSwoole extends BaseObject{
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         $workerNum = (int)($server->setting['worker_num'] ?? 0);
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
+        $this->startQueue();
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
     }
 
