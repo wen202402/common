@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="" />
+    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -165,6 +167,10 @@
       <workItem from="1785660398945" duration="1337000" />
       <workItem from="1785667823894" duration="763000" />
       <workItem from="1785677261854" duration="5127000" />
+      <workItem from="1785705630541" duration="1837000" />
+      <workItem from="1785721718551" duration="4843000" />
+      <workItem from="1785744251946" duration="14000" />
+      <workItem from="1785756214938" duration="606000" />
     </task>
     <servers />
   </component>
@@ -191,12 +197,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>269</line>
+          <line>223</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>294</line>
+          <line>248</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
@@ -211,7 +217,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>315</line>
+          <line>269</line>
           <properties>
             <option name="className" value="\wen202402\common\swoole\BaseSwoole" />
             <option name="methodName" value="onWorkerStart" />
