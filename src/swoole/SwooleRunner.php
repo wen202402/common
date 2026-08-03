@@ -30,12 +30,10 @@ class SwooleRunner{
 
 
 
-
     public function run(): void{
         $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath);
         error_log('DB init done.');
         \Swoole\Runtime::enableCoroutine(true);
-
 
 
         $config = ArrayHelper::merge(
