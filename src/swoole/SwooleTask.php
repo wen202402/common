@@ -112,8 +112,7 @@ class SwooleTask{
             return false;
         }
 
-        if (!($fp = fopen($this->lockFile, 'c')))
-            throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
+        if (!($fp = fopen($this->lockFile, 'c'))) throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
 
 
         flock($fp, LOCK_EX);
