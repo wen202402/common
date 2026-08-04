@@ -104,13 +104,12 @@ class SwooleTask{
 
 
     private function createDatabase($targetDbName){
-        $rootPdo = $this->createRootPdo();
-        $stmt = $rootPdo->prepare('select 1 from information_schema.SCHEMATA WHERE SCHEMA_NAME = :db limit 1');
+        $stmt = ($rootPdo = $this->createRootPdo())->prepare('select 1 from information_schema.SCHEMATA WHERE SCHEMA_NAME = :db limit 1');
         $stmt->execute([':db' => $targetDbName]);
-        if (($exists = (bool)$stmt->fetchColumn())) return true;
+        if (($exists = (bool)$stmt->fetchColumn())) return $exists;
         $rootPdo->exec("create database `{$targetDbName}` character set utf8mb4 collate utf8mb4_unicode_ci");
         error_log("database created: {$targetDbName}");
-        return false;
+        return $exists;
     }
 
 
