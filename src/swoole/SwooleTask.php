@@ -53,15 +53,13 @@ class SwooleTask{
 
 
 
-    // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
+                                                                                                     // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
     public function importDbAndStartYiiQueue(){
         try {
-
-            error_log('ii-queue worker start...');
+            error_log('Yii-queue worker start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {
-            $logFile = '/tmp/yii-queue-' . date('Y-m-d') . 'error..log';
-            @file_put_contents($logFile, '[' . date('Y-m-d H:i:s') . '] queue worker start failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            @file_put_contents('/tmp/yii-queue-' . date('Y-m-d') . 'error..log', '[' . date('Y-m-d H:i:s') . '] queue worker start failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
 
@@ -72,7 +70,7 @@ class SwooleTask{
 
     public function startVariable(){
         try {
-            error_log('variable timer start: ' . date('Y-m-d H:i:s'));
+            error_log(__FUNCTION__.' timer start: ' . date('Y-m-d H:i:s'));
             $exitCode = $this->app->runAction('cron/contrab/variable');
             error_log('variable exitCode: ' . $exitCode);
         } catch (\Throwable $e) {
@@ -87,7 +85,7 @@ class SwooleTask{
 
     public function startRibao(){
         try {
-            error_log('ribao timer start: ' . date('Y-m-d H:i:s'));
+            error_log(__FUNCTION__.' timer start: ' . date('Y-m-d H:i:s'));
             $exitCode = $this->app->runAction('cron/contrab/ribao',['order']);
         } catch (\Throwable $e) {
             error_log('ribao error: ' . $e->getMessage());
