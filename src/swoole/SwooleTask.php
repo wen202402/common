@@ -57,8 +57,8 @@ class SwooleTask{
     public function importDbAndStartYiiQueue(){
         try {
             $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
-            error_log('DB init done.');
-            error_log('Yii-queue worker start...');
+            error_log(__FUNCTION__.'--------------DB init done.');
+            error_log(__FUNCTION__.'---------------Yii-queue worker start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {
             @file_put_contents('/tmp/yii-queue-' . date('Y-m-d') . 'error..log', '[' . date('Y-m-d H:i:s') . '] queue worker start failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
@@ -74,7 +74,7 @@ class SwooleTask{
         try {
             error_log(__FUNCTION__.' timer start: ' . date('Y-m-d H:i:s'));
             $exitCode = $this->app->runAction('cron/contrab/variable');
-            error_log('variable exitCode: ' . $exitCode);
+            error_log(__FUNCTION__.'variable exitCode: ' . $exitCode);
         } catch (\Throwable $e) {
             error_log('variable error: ' . $e->getMessage());
             error_log($e->getTraceAsString());
@@ -150,7 +150,7 @@ class SwooleTask{
         $cmd = 'bash -c ' . escapeshellarg($zcatBin . ' ' . escapeshellarg($sqlGzPath) . ' | ' . $mysqlBin . ' ' . $hostArg . ' ' . $portArg . ' ' . $dbArg . ' ' . $userArg . ' ' . $passArg);
         error_log("Import starting db={$targetDbName}");
 
-        if (false!==($exitCode = System::exec($cmd)) ) return     error_log("Import success  db={$targetDbName}");
+        if (false!==($exitCode = System::exec($cmd)) ) return     error_log(__FUNCTION__."-----------------Import success  db={$targetDbName}");
         throw new \RuntimeException("Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
 
 
