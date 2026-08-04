@@ -1,3 +1,3 @@
 git add .
 git commit -m "dev-main"
-git push origin dev
+git push origin main
