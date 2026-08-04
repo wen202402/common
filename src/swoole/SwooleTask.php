@@ -76,9 +76,9 @@ class SwooleTask{
 
     public function startVariable(){
         try {
-            error_log(__FUNCTION__.' timer start: ' . date('Y-m-d H:i:s'));
+            error_log(__FUNCTION__.' ----start: ' . date('Y-m-d H:i:s'));
             $exitCode = $this->app->runAction('cron/contrab/variable');
-            error_log(__FUNCTION__.'variable exitCode: ' . $exitCode);
+            error_log(__FUNCTION__.' end: ' . $exitCode);
         } catch (\Throwable $e) {
             error_log('variable error: ' . $e->getMessage());
             error_log($e->getTraceAsString());
@@ -91,7 +91,7 @@ class SwooleTask{
 
     public function startRibao(){
         try {
-            error_log(__FUNCTION__.' timer start: ' . date('Y-m-d H:i:s'));
+            error_log(__FUNCTION__.'------start: ' . date('Y-m-d H:i:s'));
             $exitCode = $this->app->runAction('cron/contrab/ribao',['order']);
         } catch (\Throwable $e) {
             error_log('ribao error: ' . $e->getMessage());
