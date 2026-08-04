@@ -8,7 +8,7 @@ use wen202402\common\helper\EnvHelper;
 use yii\console\Application;
 use yii\helpers\ArrayHelper;
 
-class SwooleRunner{
+class SwooleTask{
     private string $rootPath;
     public string $libsPath;
     public string $targetDbName = '';
@@ -51,16 +51,17 @@ class SwooleRunner{
 
 
 
+
+    // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
     public function startYiiQueue(){
         try {
-            error_log('queue worker start...');
-            System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue');
+            error_log('ii-queue worker start...');
+            System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {
-            error_log('queue worker start failed: ' . $e->getMessage());
+            $logFile = '/tmp/yii-queue-' . date('Y-m-d') . 'error..log';
+            @file_put_contents($logFile, '[' . date('Y-m-d H:i:s') . '] queue worker start failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
-
-
 
 
 

@@ -85,10 +85,12 @@ class BaseSwoole extends BaseObject{
 
     public function onStart(\Swoole\Http\Server $server){
         $this->makeDir();
-
         $this->log(sprintf('listen on http://%s:%d', trim(IPHelper::getServerIp())?: $server->host, $server->port));
         $this->log(sprintf('listen on http://%s:%d', $server->host, $server->port));
     }
+
+
+
 
 
     public function makeDir(){
@@ -97,6 +99,9 @@ class BaseSwoole extends BaseObject{
         FileHelper::chmod755($this->app['aliases']['@app'] . DIRECTORY_SEPARATOR . 'runtime');
         FileHelper::chmod755($this->app['aliases']['@console'] . DIRECTORY_SEPARATOR . 'runtime');
     }
+
+
+
 
     public function init(){
         parent::init();
