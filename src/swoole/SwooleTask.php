@@ -61,8 +61,6 @@ class SwooleTask{
                                                                                                      // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
     public function startYiiQueue(){
         try {
-            $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
-            error_log(__FUNCTION__.'--------------DB init done.');
             error_log(__FUNCTION__.'---------------Yii-queue worker start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {

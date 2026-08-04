@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/push.sh" beforeDir="false" afterPath="$PROJECT_DIR$/push.sh" afterDir="false" />
-    </list>
+    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,9 +50,9 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Shell Script.push.sh.executor": "Run",
+    "Shell Script.push.sh.executor": "Debug",
     "Shell Script.tag.sh.executor": "Run",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "/home/ubuntux/PhpstormProjects/phpfater/src/di/shard",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -199,27 +197,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>223</line>
+          <line>228</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>248</line>
+          <line>253</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>145</line>
+          <line>150</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>152</line>
+          <line>157</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>269</line>
+          <line>274</line>
           <properties>
             <option name="className" value="\wen202402\common\swoole\BaseSwoole" />
             <option name="methodName" value="onWorkerStart" />
