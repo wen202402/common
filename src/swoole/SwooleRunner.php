@@ -27,6 +27,9 @@ class SwooleRunner{
         $this->importMarkFile = $this->libsPath. ".import_mark_{$this->targetDbName}";
     }
 
+
+
+
     public function run(): void{
         $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath);
         error_log('DB init done.');
