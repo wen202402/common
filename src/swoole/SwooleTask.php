@@ -34,7 +34,7 @@ class SwooleTask{
 
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
-        $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath);
+        $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
         error_log('DB init done.');
         Coroutine::create([$this, 'importDbAndStartYiiQueue']);
         $config = ArrayHelper::merge(
