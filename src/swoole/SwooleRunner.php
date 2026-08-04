@@ -97,15 +97,15 @@ class SwooleRunner{
 
 
 
-    private function checkdbImportDB(string $targetDbName, string $sqlGzPath): void{
-        if (!file_exists($sqlGzPath)) throw new \RuntimeException("sql.gz not found: {$sqlGzPath}");
+    private function checkdbImportDB(string $targetDbName, string $sqlGzPath): bool{
+        if (!file_exists($sqlGzPath))
+          return  error_log("sql.gz not found: {$sqlGzPath}");
+
+
         if (!( $fp = fopen($this->lockFile, 'c'))) throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
         flock($fp, LOCK_EX);
         try {
-            if (file_exists($this->importMarkFile)) {
-                error_log("Import already marked, skip: {$targetDbName}");
-                return;
-            }
+            if (file_exists($this->importMarkFile)) return  error_log("Import already marked, skip: {$targetDbName}");
 
             $stmt = ($rootPdo = $this->createRootPdo())->prepare('SELECT 1 FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :db LIMIT 1');
             $stmt->execute([':db' => $targetDbName]);
@@ -122,6 +122,8 @@ class SwooleRunner{
             flock($fp, LOCK_UN);
             fclose($fp);
         }
+        return true;
+
     }
 
     private function importGzWithExec(string $targetDbName, string $sqlGzPath): void{
