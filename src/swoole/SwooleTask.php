@@ -33,12 +33,7 @@ class SwooleTask{
 
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
-
-
-
-
         Coroutine::create([$this, 'importDbAndStartYiiQueue']);
-
         $config = ArrayHelper::merge(
             require $this->libsPath . 'common/config/main.php',
             require $this->libsPath . 'common/config/main-local.php',
@@ -47,7 +42,6 @@ class SwooleTask{
         );
 
         $this->app = new Application($config);
-
         swoole_timer_tick(15 * 60 * 1000, function ()  {Coroutine::create([$this,'startRibao']);});
         swoole_timer_tick(6 * 60 * 1000, function ()   { Coroutine::create([$this,'startVariable']);});
         swoole_event_wait();
