@@ -10,6 +10,7 @@ use yii\helpers\ArrayHelper;
 
 class SwooleTask{
     private string $rootPath;
+    public bool $force=false;
     public string $libsPath;
     public string $targetDbName = '';
     public string $sqlGzPath;
@@ -104,33 +105,59 @@ class SwooleTask{
 
 
 
-    private function checkdbImportDB(string $targetDbName, string $sqlGzPath): bool{
-        if (!file_exists($sqlGzPath))
-          return  error_log("sql.gz not found: {$sqlGzPath}");
+
+    private function checkdbImportDB(string $targetDbName, string $sqlGzPath, bool $force = false): bool{
+        if (!file_exists($sqlGzPath)) {
+            error_log("sql.gz not found: {$sqlGzPath}");
+            return false;
+        }
+
+        if (!($fp = fopen($this->lockFile, 'c')))
+            throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
 
 
-        if (!( $fp = fopen($this->lockFile, 'c'))) throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
         flock($fp, LOCK_EX);
         try {
-            if (file_exists($this->importMarkFile)) return  error_log("Import already marked, skip: {$targetDbName}");
-            $stmt = ($rootPdo = $this->createRootPdo())->prepare('SELECT 1 FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :db LIMIT 1');
-            $stmt->execute([':db' => $targetDbName]);
+            if (file_exists($this->importMarkFile) && !$force) {
+                error_log("Import already marked, skip: {$this->importMarkFile}" . "If you need to re-import into the database, please delete it rm -f {$this->importMarkFile}");
+                return true;
+            }
 
-            if (!($exists = (bool)$stmt->fetchColumn())) {
+            $rootPdo = $this->createRootPdo();
+            $stmt = $rootPdo->prepare('SELECT 1 FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :db LIMIT 1');
+            $stmt->execute([':db' => $targetDbName]);
+            $exists = (bool)$stmt->fetchColumn();
+
+            if (!$exists) {
                 $rootPdo->exec("CREATE DATABASE `{$targetDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
                 error_log("Database created: {$targetDbName}");
-                $this->importDatabase($targetDbName, $sqlGzPath);
-            } else    error_log("Database exists: {$targetDbName}");
-            $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
+               $this->importDatabase($targetDbName, $sqlGzPath);
+                error_log("Import success: {$targetDbName}");
+            } else {
+             /*   if ($force) {
+                    $rootPdo->exec("DROP DATABASE `{$targetDbName}`");
+                    $rootPdo->exec("CREATE DATABASE `{$targetDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                    error_log("Database dropped and recreated: {$targetDbName}");
+                } else  */
+                if ($force)    {
+                    $this->importDatabase($targetDbName, $sqlGzPath);
+                    error_log("Import success: {$targetDbName}");
+                }
+                else         error_log("Database exists skip : {$targetDbName}");
+            }
+
+            $this->ensureUserAndGrantAll( $targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
+
             @file_put_contents($this->importMarkFile, date('c'));
-            error_log("Import success: {$targetDbName}");
+            return true;
         } finally {
             flock($fp, LOCK_UN);
             fclose($fp);
         }
-        return true;
-
     }
+
+
+
 
     private function importDatabase(string $targetDbName, string $sqlGzPath): bool{
         $host = EnvHelper::getDbHost();
