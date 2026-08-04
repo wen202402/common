@@ -34,8 +34,7 @@ class SwooleTask{
 
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
-        $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
-        error_log('DB init done.');
+
         Coroutine::create([$this, 'importDbAndStartYiiQueue']);
         $config = ArrayHelper::merge(
             require $this->libsPath . 'common/config/main.php',
@@ -57,6 +56,8 @@ class SwooleTask{
                                                                                                      // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
     public function importDbAndStartYiiQueue(){
         try {
+            $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
+            error_log('DB init done.');
             error_log('Yii-queue worker start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {
