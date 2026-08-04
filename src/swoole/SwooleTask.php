@@ -183,23 +183,18 @@ class SwooleTask{
 
 
     private function ensureUserAndGrantAll(string $dbName, string $user, string $pass, string $hostPattern = '%'): void{
-        ( $stmt = ($rootPdo = $this->createRootPdo())->prepare("SELECT 1 FROM mysql.user WHERE User = :user AND Host = :host LIMIT 1"))->execute([':user' => $user, ':host' => $hostPattern]);
-        $exists = (bool)$stmt->fetchColumn();
-        $quotedUser = $rootPdo->quote($user);                                                                            // 'user'
-        $quotedHost = $rootPdo->quote($hostPattern);                                                                  // '%'
-        $userHost = "{$quotedUser}@{$quotedHost}";                                                                    // 'user'@'%'
+        $rootPdo = $this->createRootPdo();
+        $userIdent = $rootPdo->quote($user);           // 'user'
+        $hostIdent = $rootPdo->quote($hostPattern);   // '%'
+        $userHost  = "{$userIdent}@{$hostIdent}";     // 'user'@'%'
 
-        if (!$exists) {
-            $quotedPass = $rootPdo->quote($pass);
-            $createSql = "CREATE USER {$userHost} IDENTIFIED BY {$quotedPass}";
-            $rootPdo->exec($createSql);
-            error_log("MySQL user created: {$user}@{$hostPattern}");
-        } else  error_log("MySQL user exists: {$user}@{$hostPattern}");
+        $rootPdo->exec("CREATE USER IF NOT EXISTS {$userHost} IDENTIFIED BY " . $rootPdo->quote($pass));
 
+        $rootPdo->exec("GRANT ALL PRIVILEGES ON `{$dbName}`.* TO {$userHost}");
 
-        $rootPdo->exec( "GRANT ALL PRIVILEGES ON `{$dbName}`.* TO {$userHost}");
         $rootPdo->exec("FLUSH PRIVILEGES");
 
-        error_log("Granted ALL on {$dbName} to {$user}@{$hostPattern}");
+        error_log("Ensured {$user}@{$hostPattern} and granted ALL on {$dbName}.*");
     }
+
 }
