@@ -1,4 +1,3 @@
-git checkout -b dev
 git add .
-git commit -m "dev"
-git push origin dev
+git commit -m "dev-main"
+git push origin main

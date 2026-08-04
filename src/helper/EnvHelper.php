@@ -90,9 +90,14 @@ class EnvHelper{
 
 
 
+
+
     public static function getBakRoot(){
         return    self::get('db.root','root');
     }
+
+
+
 
 
     public static function getBakPassword(){
@@ -100,12 +105,26 @@ class EnvHelper{
     }
 
 
+
+
+
     public static function getDbName(){
-        return    self::get('db.dbname');
+        return  self::get('db.dbname');
     }
 
 
 
+
+    public static function getDbUsername(){
+        return    self::get('db.username','');
+    }
+
+
+
+
+    public static function getDbPassword(){
+        return    self::get('db.password','');
+    }
 
 
 }
