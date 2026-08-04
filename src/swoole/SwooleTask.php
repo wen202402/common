@@ -34,6 +34,7 @@ class SwooleTask{
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
         $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath);
+        error_log('DB init done.');
         Coroutine::create([$this, 'importDbAndStartYiiQueue']);
         $config = ArrayHelper::merge(
             require $this->libsPath . 'common/config/main.php',
@@ -56,7 +57,6 @@ class SwooleTask{
     public function importDbAndStartYiiQueue(){
         try {
 
-            error_log('DB init done.');
             error_log('ii-queue worker start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {
