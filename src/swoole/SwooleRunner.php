@@ -13,7 +13,6 @@ class SwooleRunner{
     public string $libsPath;
     public string $targetDbName = '';
     public string $sqlGzPath;
-
     private string $lockFile;
     private string $importMarkFile;
     private Application $app;
