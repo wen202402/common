@@ -64,6 +64,9 @@ class SwooleRunner{
 
 
 
+
+
+
     public function startVariable(){
         try {
             error_log('variable timer start: ' . date('Y-m-d H:i:s'));
@@ -74,6 +77,10 @@ class SwooleRunner{
             error_log($e->getTraceAsString());
         }
     }
+
+
+
+
 
     public function startRibao(){
         try {
@@ -139,13 +146,9 @@ class SwooleRunner{
         $passArg = '--password=' . escapeshellarg((string)$pass);
         $cmd = 'bash -c ' . escapeshellarg($zcatBin . ' ' . escapeshellarg($sqlGzPath) . ' | ' . $mysqlBin . ' ' . $hostArg . ' ' . $portArg . ' ' . $dbArg . ' ' . $userArg . ' ' . $passArg);
         error_log("Import start(exec pipe gz) db={$targetDbName}");
-        $output = [];
-        $exitCode = 0;
-        exec($cmd, $output, $exitCode);
-        if ($exitCode === 0) return   error_log("Import complete(exec pipe gz) db={$targetDbName}");
-        $tail = !empty($output) ? implode("\n", array_slice($output, -50)) : '';
-        throw new \RuntimeException("Import failed(exitCode={$exitCode}) tail={$tail}");
 
+        if (false!==($exitCode = System::exec($cmd)) ) return     error_log("Import complete(exec pipe gz) db={$targetDbName}");
+        throw new \RuntimeException("Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
 
 
     }
