@@ -50,7 +50,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Shell Script.push.sh.executor": "Debug",
+    "Shell Script.push.sh.executor": "Run",
     "Shell Script.tag.sh.executor": "Run",
     "git-widget-placeholder": "main",
     "last_opened_file_path": "/home/ubuntux/PhpstormProjects/phpfater/src/di/shard",
@@ -171,6 +171,7 @@
       <workItem from="1785756214938" duration="606000" />
       <workItem from="1785795842958" duration="874000" />
       <workItem from="1785796789352" duration="334000" />
+      <workItem from="1785820629184" duration="1732000" />
     </task>
     <servers />
   </component>
