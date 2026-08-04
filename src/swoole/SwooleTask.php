@@ -35,7 +35,7 @@ class SwooleTask{
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
 
-        Coroutine::create([$this, 'importDbAndStartYiiQueue']);
+        Coroutine::create([$this, 'importX']);
         $config = ArrayHelper::merge(
             require $this->libsPath . 'common/config/main.php',
             require $this->libsPath . 'common/config/main-local.php',
@@ -46,15 +46,20 @@ class SwooleTask{
         $this->app = new Application($config);
         swoole_timer_tick(15 * 60 * 1000, function ()  {Coroutine::create([$this,'startRibao']);});
         swoole_timer_tick(6 * 60 * 1000, function ()   { Coroutine::create([$this,'startVariable']);});
+        Coroutine::create([$this, 'startYiiQueue']);
         swoole_event_wait();
     }
 
 
+    public function importX(){
+        $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
+
+    }
 
 
 
                                                                                                      // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
-    public function importDbAndStartYiiQueue(){
+    public function startYiiQueue(){
         try {
             $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
             error_log(__FUNCTION__.'--------------DB init done.');
