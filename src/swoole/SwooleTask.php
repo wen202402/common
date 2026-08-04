@@ -43,7 +43,8 @@ class SwooleTask{
             require $this->libsPath . 'console/config/main-local.php'
         );
 
-        $this->app = new Application($config);
+        $this->app =$app= new Application($config);
+        $app->init();
         swoole_timer_tick(15 * 60 * 1000, function ()  {Coroutine::create([$this,'startRibao']);});
         swoole_timer_tick(6 * 60 * 1000, function ()   { Coroutine::create([$this,'startVariable']);});
         Coroutine::create([$this, 'startYiiQueue']);
