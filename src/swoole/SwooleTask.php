@@ -34,7 +34,6 @@ class SwooleTask{
 
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
-
         Coroutine::create([$this, 'importX']);
         $config = ArrayHelper::merge(
             require $this->libsPath . 'common/config/main.php',
@@ -62,10 +61,12 @@ class SwooleTask{
                                                                                                      // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
     public function startYiiQueue(){
         try {
-            error_log(__FUNCTION__.'---------------Yii-queue worker start...');
+            error_log(__FUNCTION__.'--------------- start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
         } catch (\Throwable $e) {
             @file_put_contents('/tmp/yii-queue-' . date('Y-m-d') . 'error..log', '[' . date('Y-m-d H:i:s') . '] queue worker start failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+        } finally {
+            error_log(__FUNCTION__.'---------------end');
         }
     }
 
@@ -80,7 +81,7 @@ class SwooleTask{
             $exitCode = $this->app->runAction('cron/contrab/variable');
             error_log(__FUNCTION__.' end: ' . $exitCode);
         } catch (\Throwable $e) {
-            error_log('variable error: ' . $e->getMessage());
+            error_log(__FUNCTION__.'-----error: ' . $e->getMessage());
             error_log($e->getTraceAsString());
         }
     }
@@ -109,11 +110,12 @@ class SwooleTask{
 
 
     private function createDatabase($targetDbName){
+        error_log(__FUNCTION__."---------------start-------------");
         $stmt = ($rootPdo = $this->createRootPdo())->prepare('select 1 from information_schema.SCHEMATA WHERE SCHEMA_NAME = :db limit 1');
         $stmt->execute([':db' => $targetDbName]);
         if (($exists = (bool)$stmt->fetchColumn())) return $exists;
         $rootPdo->exec("create database `{$targetDbName}` character set utf8mb4 collate utf8mb4_unicode_ci");
-        error_log("database created: {$targetDbName}");
+        error_log(__FUNCTION__."--------------------database created: {$targetDbName}");
         return $exists;
     }
 
@@ -121,6 +123,7 @@ class SwooleTask{
 
 
     private function checkdbImportDB(string $targetDbName, string $sqlGzPath, bool $force = false): bool{
+        error_log(__FUNCTION__."---------------start-------------");
         if (!file_exists($sqlGzPath)) return   error_log("sql.gz not found: {$sqlGzPath}");
         if (!($fp = fopen($this->lockFile, 'c')))     throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
         flock($fp, LOCK_EX);
@@ -128,16 +131,17 @@ class SwooleTask{
             if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
             $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
             $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
-
             return true;
         } finally {
             flock($fp, LOCK_UN);
             fclose($fp);
+            error_log(__FUNCTION__."---------------end-------------");
         }
     }
 
 
     private function importDatabase(string $targetDbName, string $sqlGzPath,bool $exists,bool $force=false): bool{
+        error_log(__FUNCTION__."---------------start-------------");
         if ($exists && !$this->force) return error_log(__FUNCTION__."------Database exists skip : {$targetDbName}");
         $host = EnvHelper::getDbHost();
         $port = EnvHelper::getDbPort();
@@ -152,15 +156,15 @@ class SwooleTask{
         $userArg = '--user=' . escapeshellarg((string)$user);
         $passArg = '--password=' . escapeshellarg((string)$pass);
         $cmd = 'bash -c ' . escapeshellarg($zcatBin . ' ' . escapeshellarg($sqlGzPath) . ' | ' . $mysqlBin . ' ' . $hostArg . ' ' . $portArg . ' ' . $dbArg . ' ' . $userArg . ' ' . $passArg);
-        error_log("Import starting db={$targetDbName}");
+        error_log(__FUNCTION__."---------------Import starting db={$targetDbName}");
 
         if (false!==($exitCode = System::exec($cmd)) ) {
-            error_log(__FUNCTION__."-----------------Import success  db={$targetDbName}");
+            error_log(__FUNCTION__."-----------------end-----------------Import success  db={$targetDbName}");
             @file_put_contents($this->importMarkFile, date('c'));
             return true;
         }
 
-        throw new \RuntimeException("Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
+        throw new \RuntimeException(__FUNCTION__."------------------------------Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
 
 
     }
