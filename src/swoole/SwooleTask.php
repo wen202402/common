@@ -103,50 +103,27 @@ class SwooleTask{
     }
 
 
+    private function createDatabase($targetDbName){
+        $rootPdo = $this->createRootPdo();
+        $stmt = $rootPdo->prepare('select 1 from information_schema.SCHEMATA WHERE SCHEMA_NAME = :db limit 1');
+        $stmt->execute([':db' => $targetDbName]);
+        if (($exists = (bool)$stmt->fetchColumn())) return true;
+        $rootPdo->exec("create database `{$targetDbName}` character set utf8mb4 collate utf8mb4_unicode_ci");
+        error_log("database created: {$targetDbName}");
+        return false;
+    }
+
 
 
 
     private function checkdbImportDB(string $targetDbName, string $sqlGzPath, bool $force = false): bool{
-        if (!file_exists($sqlGzPath)) {
-            error_log("sql.gz not found: {$sqlGzPath}");
-            return false;
-        }
-
-        if (!($fp = fopen($this->lockFile, 'c'))) throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
-
-
+        if (!file_exists($sqlGzPath)) return   error_log("sql.gz not found: {$sqlGzPath}");
+        if (!($fp = fopen($this->lockFile, 'c')))     throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
         flock($fp, LOCK_EX);
         try {
-            if (file_exists($this->importMarkFile) && !$force) {
-                error_log("Import already marked, skip: {$this->importMarkFile}" . "If you need to re-import into the database, please delete it rm -f {$this->importMarkFile}");
-                return true;
-            }
-
-            $rootPdo = $this->createRootPdo();
-            $stmt = $rootPdo->prepare('SELECT 1 FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :db LIMIT 1');
-            $stmt->execute([':db' => $targetDbName]);
-            $exists = (bool)$stmt->fetchColumn();
-
-            if (!$exists) {
-                $rootPdo->exec("CREATE DATABASE `{$targetDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                error_log("Database created: {$targetDbName}");
-               $this->importDatabase($targetDbName, $sqlGzPath);
-                error_log("Import success: {$targetDbName}");
-            } else {
-             /*   if ($force) {
-                    $rootPdo->exec("DROP DATABASE `{$targetDbName}`");
-                    $rootPdo->exec("CREATE DATABASE `{$targetDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                    error_log("Database dropped and recreated: {$targetDbName}");
-                } else  */
-                if ($force)    {
-                    $this->importDatabase($targetDbName, $sqlGzPath);
-                    error_log("Import success: {$targetDbName}");
-                }
-                else         error_log("Database exists skip : {$targetDbName}");
-            }
-
-            $this->ensureUserAndGrantAll( $targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
-
+            if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
+            $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
+            $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
             @file_put_contents($this->importMarkFile, date('c'));
             return true;
         } finally {
@@ -156,9 +133,8 @@ class SwooleTask{
     }
 
 
-
-
-    private function importDatabase(string $targetDbName, string $sqlGzPath): bool{
+    private function importDatabase(string $targetDbName, string $sqlGzPath,bool $exists,bool $force=false): bool{
+        if ($exists && !$this->force) return error_log(__FUNCTION__."------Database exists skip : {$targetDbName}");
         $host = EnvHelper::getDbHost();
         $port = EnvHelper::getDbPort();
         $user = EnvHelper::getBakRoot();
@@ -172,13 +148,15 @@ class SwooleTask{
         $userArg = '--user=' . escapeshellarg((string)$user);
         $passArg = '--password=' . escapeshellarg((string)$pass);
         $cmd = 'bash -c ' . escapeshellarg($zcatBin . ' ' . escapeshellarg($sqlGzPath) . ' | ' . $mysqlBin . ' ' . $hostArg . ' ' . $portArg . ' ' . $dbArg . ' ' . $userArg . ' ' . $passArg);
-        error_log("Import start(exec pipe gz) db={$targetDbName}");
+        error_log("Import starting db={$targetDbName}");
 
-        if (false!==($exitCode = System::exec($cmd)) ) return     error_log("Import complete(exec pipe gz) db={$targetDbName}");
+        if (false!==($exitCode = System::exec($cmd)) ) return     error_log("Import success  db={$targetDbName}");
         throw new \RuntimeException("Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
 
 
     }
+
+
 
 
 
