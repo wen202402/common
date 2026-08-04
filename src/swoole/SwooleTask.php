@@ -25,7 +25,7 @@ class SwooleTask{
         $this->targetDbName = EnvHelper::getDbName();
         $this->sqlGzPath =  $this->libsPath.  $this->targetDbName.'.sql.gz';
         $this->lockFile =$this->libsPath . '.init.lock';
-        $this->importMarkFile = $this->libsPath. ".import_mark_{$this->targetDbName}";
+        $this->importMarkFile = $this->libsPath. ".import_mark";
     }
 
 
