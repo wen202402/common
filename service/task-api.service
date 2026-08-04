@@ -10,5 +10,13 @@ ExecStart=/bin/sh -c 'php -ddisable_functions=$disable_functions /www/wwwroot/ap
 StandardOutput=file:/tmp/api-task-queue.log
 StandardError=file:/tmp/api-task-queue.error.log
 
+# Restart=always
+# RestartSec=3
+Restart=on-failure
+RestartSec=3
+
+StartLimitIntervalSec=60
+StartLimitBurst=10
+
 [Install]
 WantedBy=multi-user.target
