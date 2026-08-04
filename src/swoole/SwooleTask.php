@@ -4,6 +4,7 @@ namespace wen202402\common\swoole;
 
 use Swoole\Coroutine;
 use Swoole\Coroutine\System;
+
 use wen202402\common\helper\EnvHelper;
 use yii\console\Application;
 use yii\helpers\ArrayHelper;
@@ -31,9 +32,10 @@ class SwooleTask{
 
 
     public function run(): void{
+        \Swoole\Runtime::enableCoroutine(true);
         $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath);
         error_log('DB init done.');
-        \Swoole\Runtime::enableCoroutine(true);
+
 
         $config = ArrayHelper::merge(
             require $this->libsPath . 'common/config/main.php',
