@@ -124,7 +124,7 @@ class SwooleTask{
             if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
             $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
             $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
-            @file_put_contents($this->importMarkFile, date('c'));
+
             return true;
         } finally {
             flock($fp, LOCK_UN);
@@ -150,7 +150,12 @@ class SwooleTask{
         $cmd = 'bash -c ' . escapeshellarg($zcatBin . ' ' . escapeshellarg($sqlGzPath) . ' | ' . $mysqlBin . ' ' . $hostArg . ' ' . $portArg . ' ' . $dbArg . ' ' . $userArg . ' ' . $passArg);
         error_log("Import starting db={$targetDbName}");
 
-        if (false!==($exitCode = System::exec($cmd)) ) return     error_log(__FUNCTION__."-----------------Import success  db={$targetDbName}");
+        if (false!==($exitCode = System::exec($cmd)) ) {
+            error_log(__FUNCTION__."-----------------Import success  db={$targetDbName}");
+            @file_put_contents($this->importMarkFile, date('c'));
+            return true;
+        }
+
         throw new \RuntimeException("Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
 
 
