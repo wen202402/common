@@ -10,9 +10,9 @@ use yii\helpers\ArrayHelper;
 
 class SwooleRunner{
     private string $rootPath;
-    private string $libsPath;
-    private string $targetDbName = '';
-    private string $sqlGzPath;
+    public string $libsPath;
+    public string $targetDbName = '';
+    public string $sqlGzPath;
 
     private string $lockFile;
     private string $importMarkFile;
