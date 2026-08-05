@@ -14,6 +14,7 @@ abstract class SwooleYiiBackend extends BaseSwoole{
 
     public $port     = 58000;
     public $appName = 'backend';
+    public $console = [];
 
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         parent::onWorkerStart($server, $workerId);
