@@ -115,6 +115,7 @@ class SwooleTask{
         $stmt->execute([':db' => $targetDbName]);
         if (($exists = (bool)$stmt->fetchColumn())) return $exists;
         $rootPdo->exec("create database `{$targetDbName}` character set utf8mb4 collate utf8mb4_unicode_ci");
+        $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
         error_log(__FUNCTION__."--------------------database created: {$targetDbName}");
         return $exists;
     }
@@ -130,7 +131,7 @@ class SwooleTask{
         try {
             if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
             $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
-            $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
+
             return true;
         } finally {
             flock($fp, LOCK_UN);
@@ -187,11 +188,8 @@ class SwooleTask{
         $userIdent = $rootPdo->quote($user);           // 'user'
         $hostIdent = $rootPdo->quote($hostPattern);   // '%'
         $userHost  = "{$userIdent}@{$hostIdent}";     // 'user'@'%'
-
         $rootPdo->exec("CREATE USER IF NOT EXISTS {$userHost} IDENTIFIED BY " . $rootPdo->quote($pass));
-
         $rootPdo->exec("GRANT ALL PRIVILEGES ON `{$dbName}`.* TO {$userHost}");
-
         $rootPdo->exec("FLUSH PRIVILEGES");
 
         error_log("Ensured {$user}@{$hostPattern} and granted ALL on {$dbName}.*");
