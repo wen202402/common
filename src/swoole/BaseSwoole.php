@@ -150,9 +150,15 @@ class BaseSwoole extends BaseObject{
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
     //    Yii::$app->request->resolve();
+
+
+       $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
+
+        $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
+        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);
+        $app = new Application($this->app);
         Yii::$app->response->isSent = false;
         Yii::$app->response->clear();
-       $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
         Yii::$app->run();
@@ -192,11 +198,7 @@ class BaseSwoole extends BaseObject{
 
 
     private function startApp(){
-        $_SERVER['SCRIPT_NAME']     = $scriptName ='/index.php';
-        $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
-        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);
-        $app = new Application($this->app);
-        $app->init();
+
     }
 
 
