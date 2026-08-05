@@ -2,6 +2,7 @@
 
 namespace wen202402\common\swoole;
 
+use Swoole\Timer;
 use Throwable;
 use wen202402\common\di\Application;
 use wen202402\common\helper\FileHelper;
@@ -163,8 +164,28 @@ class BaseSwoole extends BaseObject{
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
 
         $this->startApp();
+        if ($workerId !== 0) return;
+        error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
+
+        Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
+        Timer::tick(6*60* 1000, function () {$this->actionFund(); });
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
+
     }
+
+
+
+    public function actionFund(){
+        error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
+
+    }
+
+    public function actionRibao(){
+        error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
+
+
+    }
+
 
 
     private function startApp(){
