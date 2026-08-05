@@ -19,8 +19,8 @@ abstract class SwooleYiiBackend extends BaseSwoole{
         parent::onWorkerStart($server, $workerId);
         if ($workerId !== 0) return;
 
-        Timer::tick(1*60 * 1000, function () {\Swoole\Coroutine::create([$this,'actionRibao']);});
-        Timer::tick(1 * 1000, function () {\Swoole\Coroutine::create([$this,'actionFund']);});
+        Timer::tick(1*60 * 1000, function () {$this->actionRibao('order');});
+        Timer::tick(1 * 1000, function () {$this->actionFund(); });
 
     }
    abstract public function actionFund();
