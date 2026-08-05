@@ -144,7 +144,7 @@ class SwooleTask{
         if (($exists = (bool)$stmt->fetchColumn())) return $exists;
         $rootPdo->exec("create database `{$targetDbName}` character set utf8mb4 collate utf8mb4_unicode_ci");
         $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
-        error_log(__FUNCTION__."--------------------database created: {$targetDbName}");
+        error_log(__FUNCTION__."--------------------end----database created: {$targetDbName}");
         return $exists;
     }
 
