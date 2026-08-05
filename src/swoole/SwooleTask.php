@@ -48,7 +48,7 @@ class SwooleTask{
         $this->app =$app= new Application($this->config);
 
         Coroutine::create(function () use ($app) {$this->startYiiQueue($app);});
-        swoole_event_wait();
+   
     }
 
 
