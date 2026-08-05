@@ -14,8 +14,7 @@ StandardError=file:/tmp/swoole-backend.error.log
 Restart=on-failure
 RestartSec=3
 
-StartLimitIntervalSec=60
-StartLimitBurst=10
+
 
 
 [Install]

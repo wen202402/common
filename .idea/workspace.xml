@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="" />
+    <list default="true" id="f2d7e46c-34a5-4f7d-9bad-dd24c652f9de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/service/swoole-backend.service" beforeDir="false" afterPath="$PROJECT_DIR$/service/swoole-backend.service" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -176,6 +178,7 @@
       <workItem from="1785846977569" duration="676000" />
       <workItem from="1785849160887" duration="244000" />
       <workItem from="1785893747446" duration="1064000" />
+      <workItem from="1785896663537" duration="3289000" />
     </task>
     <servers />
   </component>

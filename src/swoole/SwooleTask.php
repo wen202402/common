@@ -103,9 +103,11 @@ class SwooleTask{
 
 
     private function createRootPdo(): \PDO{
+        error_log(__FUNCTION__.'---------------start: ' );
         $host = EnvHelper::getDbHost();
         $port = EnvHelper::getDbPort();
-        return new \PDO("mysql:host={$host};port={$port};charset=utf8mb4", EnvHelper::getBakRoot(), EnvHelper::getBakPassword(), [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,]);
+        error_log($dsn="mysql:host={$host};port={$port};charset=utf8mb4". EnvHelper::getBakRoot(). EnvHelper::getBakPassword());
+        return new \PDO("mysql:host={$host};port={$port};charset=utf8mb4", EnvHelper::getBakRoot(), EnvHelper::getBakPassword(), [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     }
 
 
