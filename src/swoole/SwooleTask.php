@@ -48,7 +48,7 @@ class SwooleTask{
         $this->app =$app= new Application($this->config);
 
         Coroutine::create(function () use ($app) {$this->startYiiQueue($app);});
-   
+
     }
 
 
@@ -139,19 +139,19 @@ class SwooleTask{
 
     private function checkdbImportDB(string $targetDbName, string $sqlGzPath, bool $force = false): bool{
         error_log(__FUNCTION__."---------------start-------------");
-        if (!file_exists($sqlGzPath)) return   error_log("sql.gz not found: {$sqlGzPath}");
-        if (!($fp = fopen($this->lockFile, 'c')))     throw new \RuntimeException("Cannot open lock file: {$this->lockFile}");
-        flock($fp, LOCK_EX);
-        try {
-            if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
-            $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
 
-            return true;
-        } finally {
-            flock($fp, LOCK_UN);
-            fclose($fp);
-            error_log(__FUNCTION__."---------------end-------------");
+        if (!file_exists($sqlGzPath)) return   error_log("sql.gz not found: {$sqlGzPath}");
+        if (!Yii::$app->mutex->acquire($kmutex=__FUNCTION__)) {
+            error_log(__CLASS__."未获取到锁------".$kmutex.PHP_EOL)  ;
+            return false;
         }
+        if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
+        $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
+
+        Yii::$app->mutex->release($kmutex);
+        return true;
+
+
     }
 
 
