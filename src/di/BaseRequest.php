@@ -14,7 +14,7 @@ class BaseRequest  extends \yii\web\Request{
 
     public $enableCookieValidation = false;
     public $csrfParam = '_csrf-backend';
-
+    public $trustedHosts= ['127.0.0.1', '::1',];   //可新代理　api服务器或nginx upstream
     /**
      * @return \Swoole\Http\Request
      */
@@ -103,7 +103,7 @@ class BaseRequest  extends \yii\web\Request{
         $_SERVER['HTTPS']            = $https ? 'on' : 'off';
 
         //    unset($_SERVER['PATH_INFO']);
-        $this->resolve();
+     //   $this->resolve();
      //   $this->getSecureForwardedHeaderParts();
      //   $this->getCookies();
       //  $this->getAbsoluteUrl();

@@ -151,9 +151,7 @@ class BaseSwoole extends BaseObject{
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
     //    Yii::$app->request->resolve();
 
-
-       $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
-
+        $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
         $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);
         $app = new Application($this->app);
