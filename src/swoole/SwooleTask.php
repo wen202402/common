@@ -106,7 +106,7 @@ class SwooleTask{
         error_log(__FUNCTION__.'---------------start: ' );
         $host = EnvHelper::getDbHost();
         $port = EnvHelper::getDbPort();
-        error_log($dsn="mysql:host={$host};port={$port};charset=utf8mb4". EnvHelper::getBakRoot(). EnvHelper::getBakPassword());
+     //   error_log($dsn="mysql:host={$host};port={$port};charset=utf8mb4". EnvHelper::getBakRoot(). EnvHelper::getBakPassword());
         return new \PDO("mysql:host={$host};port={$port};charset=utf8mb4", EnvHelper::getBakRoot(), EnvHelper::getBakPassword(), [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     }
 
