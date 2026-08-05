@@ -43,13 +43,13 @@ class SwooleTask{
 
 
     public function run(): void{
+        \Swoole\Runtime::enableCoroutine(true);
+        Coroutine::create([$this, 'importX']);
 
-        $this->importX();
         $this->app =$app= new Application($this->config);
         $app->init();
-
-        $this->startYiiQueue($app);
-
+        Coroutine::create(function () use ($app) {$this->startYiiQueue($app);});
+        swoole_event_wait();
     }
 
 
@@ -95,6 +95,33 @@ class SwooleTask{
     }
 
 
+
+
+
+    public function startVariable(){
+        try {
+            error_log(__FUNCTION__.' ----start: ' . date('Y-m-d H:i:s'));
+            $exitCode = $this->app->runAction('cron/contrab/variable');
+            error_log(__FUNCTION__.' end: ' . $exitCode);
+        } catch (\Throwable $e) {
+            error_log(__FUNCTION__.'-----error: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
+        }
+    }
+
+
+
+
+
+    public function startRibao(){
+        try {
+            error_log(__FUNCTION__.'------start: ' . date('Y-m-d H:i:s'));
+            $exitCode = $this->app->runAction('cron/contrab/ribao',['order']);
+        } catch (\Throwable $e) {
+            error_log('ribao error: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
+        }
+    }
 
 
 
