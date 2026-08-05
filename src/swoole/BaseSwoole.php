@@ -134,7 +134,7 @@ class BaseSwoole extends BaseObject{
     public function setOption(): void {
         $appRoot                        = ($docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) . $this->appName . DIRECTORY_SEPARATOR;
         $this->options['pid_file']      = $appRoot . 'runtime/swoole.pid';
-        $this->options['log_file']      = $appRoot . 'runtime/swoole.log';
+        $this->options['log_file']      = $appRoot . 'runtime/swoole'.date('Y-m-d').'.log';
         $this->options['worker_num']    = (int)(swoole_cpu_num() * $this->cpu) ?: 2;
         $this->options['document_root'] = $appRoot . 'web';
     }
