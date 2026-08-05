@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 //\Swoole\Runtime::enableCoroutine();
 
 
-class SwooleYiiBackend extends BaseSwoole{
+abstract class SwooleYiiBackend extends BaseSwoole{
 
     public $port     = 58000;
     public $appName = 'backend';
@@ -23,16 +23,12 @@ class SwooleYiiBackend extends BaseSwoole{
         Timer::tick(60 * 1000, function () {\Swoole\Coroutine::create([$this,'actionFund']);});
 
     }
-    public function actionFund(){
-
-    }
+   abstract public function actionFund();
 
 
 
+    abstract public function actionRibao();
 
-    public function actionRibao(){
-
-    }
 
 
 
