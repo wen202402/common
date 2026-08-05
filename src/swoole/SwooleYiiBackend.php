@@ -3,7 +3,7 @@
 namespace wen202402\common\swoole;
 
 use Swoole\Timer;
-
+use yii\console\Application;
 
 
 //\Swoole\Runtime::enableCoroutine();
@@ -18,10 +18,10 @@ abstract class SwooleYiiBackend extends BaseSwoole{
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         parent::onWorkerStart($server, $workerId);
         if ($workerId !== 0) return;
-        
-        Timer::tick(1*60 * 1000, function ()  {$this->actionRibao();});
-        Timer::tick(1 * 1000, function () {$this->actionFund(); });
-
+        error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
+        $app = new Application($this->console);
+        Timer::tick(1*60 * 1000, function ()use($app)  {$this->actionRibao($app);});
+        Timer::tick(1 * 1000, function ()use($app) {$this->actionFund($app); });
 
     }
 
@@ -29,23 +29,18 @@ abstract class SwooleYiiBackend extends BaseSwoole{
 
 
 
-    public  function merge(array ...$arrays): array{
-        $result = [];
-        foreach ($arrays as $array) {
-            foreach ($array as $k => $v) {
-                if (is_int($k)) $result[] = $v;
-                else   $result[$k] = $v;
-            }
-        }
-        return $result;
+
+    public function actionFund(Application $app){
+         error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
+         $app->runAction('cron/contrab/variable');
     }
 
+    public function actionRibao(Application $app){
+        error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
+        $app->runAction('cron/contrab/ribao', ['order']);
 
-    abstract public function actionFund();
+    }
 
-
-
-    abstract public function actionRibao();
 
 
 
