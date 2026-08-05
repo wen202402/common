@@ -42,8 +42,7 @@ class EnvHelper{
 
 
     public static function loadFile($filePath) {
-        if (!file_exists($filePath)) static::preExitMessage('no exist' . PHP_EOL . PHP_EOL . $filePath);
-
+        if (!file_exists($filePath)) static::preExitMessage('no exist'.$filePath .  PHP_EOL );
         foreach (($env = parse_ini_file($filePath, true)) as $key => $val) {
             $prefix = static::ENV_PREFIX . strtoupper($key);
             if (!is_array($val)) {
@@ -60,7 +59,7 @@ class EnvHelper{
 
 
     public static function preExitMessage($message){
-        echo "<pre>";
+
         return exit($message);
     }
 

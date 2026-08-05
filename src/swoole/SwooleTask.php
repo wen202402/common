@@ -2,9 +2,11 @@
 
 namespace wen202402\common\swoole;
 
+use co;
 use Swoole\Coroutine;
 use Swoole\Coroutine\System;
 use wen202402\common\helper\EnvHelper;
+use Yii;
 use yii\console\Application;
 use yii\helpers\ArrayHelper;
 
@@ -46,7 +48,7 @@ class SwooleTask{
         $app->init();
         swoole_timer_tick(15 * 60 * 1000, function ()  {Coroutine::create([$this,'startRibao']);});
         swoole_timer_tick(6 * 60 * 1000, function ()   { Coroutine::create([$this,'startVariable']);});
-        Coroutine::create([$this, 'startYiiQueue']);
+        Coroutine::create(function () use ($app) {$this->startYiiQueue($app);});
         swoole_event_wait();
     }
 
@@ -59,7 +61,7 @@ class SwooleTask{
 
 
                                                                                                      // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
-    public function startYiiQueue(){
+/*    public function startYiiQueue(){
         try {
             error_log(__FUNCTION__.'--------------- start...');
             System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
@@ -68,11 +70,24 @@ class SwooleTask{
         } finally {
             error_log(__FUNCTION__.'---------------end');
         }
+    }*/
+
+
+
+
+    public function startYiiQueue(Application $app){
+        $queue = $app?->queue;
+        while (true) {
+            try {
+              ($job = $queue->dequeue(5)) ? $queue->execute($job): Co::sleep(1);       // 示例：最多等5秒      // $job = $queue->dequeue(); // 按实际改
+
+            } catch (\Throwable $e) {
+                Yii::error($e->getMessage(), 'queue');
+                error_log($e->getMessage());
+                Co::sleep(1);
+            }
+        }
     }
-
-
-
-
 
 
     public function startVariable(){
