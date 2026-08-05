@@ -20,7 +20,7 @@ class SwooleYiiBackend extends BaseSwoole{
         if ($workerId !== 0) return;
         error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
 
-        Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
+        Timer::tick(1*60 * 1000, function ()  {$this->actionRibao();});
         Timer::tick(6*60* 1000, function () {$this->actionFund(); });
 
     }
