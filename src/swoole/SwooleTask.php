@@ -45,9 +45,8 @@ class SwooleTask{
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
         Coroutine::create([$this, 'importX']);
-
         $this->app =$app= new Application($this->config);
-        $app->init();
+
         Coroutine::create(function () use ($app) {$this->startYiiQueue($app);});
         swoole_event_wait();
     }
@@ -66,17 +65,7 @@ class SwooleTask{
 
 
 
-                                                                                                     // $tmpDir = $this->libsPath . 'console/runtime/tmp/';        if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
-/*    public function startYiiQueue(){
-        try {
-            error_log(__FUNCTION__.'--------------- start...');
-            System::exec('/usr/bin/php ' . $this->rootPath . '/cmd/queue' . ' >> ' . escapeshellarg('/tmp/yii-queue-' . date('Y-m-d') . '.log') . ' 2>&1');
-        } catch (\Throwable $e) {
-            @file_put_contents('/tmp/yii-queue-' . date('Y-m-d') . 'error..log', '[' . date('Y-m-d H:i:s') . '] queue worker start failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
-        } finally {
-            error_log(__FUNCTION__.'---------------end');
-        }
-    }*/
+
 
 
 
