@@ -32,12 +32,12 @@ class SwooleYiiBackend extends BaseSwoole{
 
     public function actionFund(){
          error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
-         \Yii::$app->runAction('cron/contrab/variable');
+         \Yii::$app->runAction('login/login/variable');
     }
 
     public function actionRibao(){
         error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
-        \Yii::$app->runAction('cron/contrab/ribao', ['order']);
+        \Yii::$app->runAction('login/login/ribao', ['order']);
 
     }
 
