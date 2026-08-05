@@ -19,15 +19,14 @@ abstract class SwooleYiiBackend extends BaseSwoole{
         parent::onWorkerStart($server, $workerId);
         if ($workerId !== 0) return;
         $document_root=$this->document_root.DIRECTORY_SEPARATOR;
-        $console =  array_merge(
-            require_once $document_root . 'common/config/main.php',
-            require_once $document_root . 'common/config/main-local.php',
-            require_once $document_root . 'console/config/main.php',
-            require_once $document_root . 'console/config/main-local.php'
-        );
-
+        $main=    require_once $document_root . 'common/config/main.php';
+        $main_local=   require_once $document_root . 'common/config/main-local-swoole.php';
+        $backend=      require_once $document_root . 'backend/config/main.php';
+        $backend_local=    require_once $document_root . 'backend/config/main-local.php';
+        $console = array_merge($main,$main_local,$backend,$backend_local);
         Timer::tick(1*60 * 1000, function () use ($console) {$this->actionRibao($console);});
         Timer::tick(1 * 1000, function () use ($console) {$this->actionFund($console); });
+        unset($main,$main_local,$backend,$backend_local);
 
     }
    abstract public function actionFund($console);
