@@ -20,8 +20,8 @@ abstract class SwooleYiiBackend extends BaseSwoole{
         if ($workerId !== 0) return;
         error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
         $app = new Application($this->console);
-        Timer::tick(1*60 * 1000, function ()use($app)  {$this->actionRibao($app);});
-        Timer::tick(1 * 1000, function ()use($app) {$this->actionFund($app); });
+        Timer::tick(15*60 * 1000, function ()use($app)  {$this->actionRibao($app);});
+        Timer::tick(6*60* 1000, function ()use($app) {$this->actionFund($app); });
 
     }
 
