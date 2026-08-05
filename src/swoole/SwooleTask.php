@@ -21,14 +21,22 @@ class SwooleTask{
     private string $lockFile;
     private string $importMarkFile;
     private Application $app;
+    public  $config;
 
-    public function __construct($rootPath){
+    public function __construct($config,$rootPath){
+        $this->config = $config;
         $this->rootPath = $rootPath;
         $this->libsPath = $this->rootPath . DIRECTORY_SEPARATOR;
         $this->targetDbName = EnvHelper::getDbName();
         $this->sqlGzPath =  $this->libsPath.  $this->targetDbName.'.sql.gz';
         $this->lockFile =$this->libsPath . '.init.lock';
         $this->importMarkFile = $this->libsPath. ".import_mark";
+        if (empty($config))$this->config= ArrayHelper::merge(
+            require $this->libsPath . 'common/config/main.php',
+            require $this->libsPath . 'common/config/main-local.php',
+            require $this->libsPath . 'console/config/main.php',
+            require $this->libsPath . 'console/config/main-local.php'
+        );
     }
 
 
@@ -37,14 +45,9 @@ class SwooleTask{
     public function run(): void{
         \Swoole\Runtime::enableCoroutine(true);
         Coroutine::create([$this, 'importX']);
-        $config = ArrayHelper::merge(
-            require $this->libsPath . 'common/config/main.php',
-            require $this->libsPath . 'common/config/main-local.php',
-            require $this->libsPath . 'console/config/main.php',
-            require $this->libsPath . 'console/config/main-local.php'
-        );
 
-        $this->app =$app= new Application($config);
+
+        $this->app =$app= new Application($this->config);
         $app->init();
         swoole_timer_tick(15 * 60 * 1000, function ()  {Coroutine::create([$this,'startRibao']);});
         swoole_timer_tick(6 * 60 * 1000, function ()   { Coroutine::create([$this,'startVariable']);});
