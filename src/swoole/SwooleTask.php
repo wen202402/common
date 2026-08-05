@@ -53,6 +53,12 @@ class SwooleTask{
     }
 
 
+
+
+
+
+
+
     public function importX(){
         $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
 
@@ -80,7 +86,7 @@ class SwooleTask{
         while (true) {
             try {
               ($job = $queue->dequeue(5)) ? $queue->execute($job): Co::sleep(1);       // 示例：最多等5秒      // $job = $queue->dequeue(); // 按实际改
-
+                \Swoole\Coroutine::yield();
             } catch (\Throwable $e) {
                 Yii::error($e->getMessage(), 'queue');
                 error_log($e->getMessage());
@@ -88,6 +94,9 @@ class SwooleTask{
             }
         }
     }
+
+
+
 
 
     public function startVariable(){
