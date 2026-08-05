@@ -19,7 +19,7 @@ abstract class SwooleYiiBackend extends BaseSwoole{
         parent::onWorkerStart($server, $workerId);
         if ($workerId !== 0) return;
         $document_root=$this->document_root.DIRECTORY_SEPARATOR;
-        $console = ArrayHelper::merge(
+        $console = array_merge(
             require_once $document_root . 'common/config/main.php',
             require_once $document_root . 'common/config/main-local.php',
             require_once $document_root . 'console/config/main.php',
