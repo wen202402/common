@@ -9,7 +9,7 @@ use yii\console\Application;
 //\Swoole\Runtime::enableCoroutine();
 
 
-abstract class SwooleYiiBackend extends BaseSwoole{
+class SwooleYiiBackend extends BaseSwoole{
 
     public $port     = 58000;
     public $appName = 'backend';
