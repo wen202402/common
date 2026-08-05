@@ -19,9 +19,9 @@ class SwooleYiiBackend extends BaseSwoole{
         parent::onWorkerStart($server, $workerId);
         if ($workerId !== 0) return;
         error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
-        $app = new Application($this->console);
-        Timer::tick(15*60 * 1000, function ()use($app)  {$this->actionRibao($app);});
-        Timer::tick(6*60* 1000, function ()use($app) {$this->actionFund($app); });
+
+        Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
+        Timer::tick(6*60* 1000, function () {$this->actionFund(); });
 
     }
 
@@ -30,14 +30,14 @@ class SwooleYiiBackend extends BaseSwoole{
 
 
 
-    public function actionFund(Application $app){
+    public function actionFund(){
          error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
-         $app->runAction('cron/contrab/variable');
+         \Yii::$app->runAction('cron/contrab/variable');
     }
 
-    public function actionRibao(Application $app){
+    public function actionRibao(){
         error_log(__FUNCTION__.'------------------ start----'. date('Y-m-d H:i:s').PHP_EOL);
-        $app->runAction('cron/contrab/ribao', ['order']);
+        \Yii::$app->runAction('cron/contrab/ribao', ['order']);
 
     }
 
