@@ -149,10 +149,11 @@ class BaseSwoole extends BaseObject{
 //SCRIPT_NAME=/index.php  SCRIPT_FILENAME=/home/ubuntux/Desktop/all/yii-docker/php/backend/web/index.php
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
-
+    
 
         Yii::$app->response->isSent = false;
         Yii::$app->response->clear();
+
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
         Yii::$app->run();
@@ -197,7 +198,7 @@ class BaseSwoole extends BaseObject{
         $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);
         $app = new Application($this->app);
-        $app->init();
+
     }
 
 
