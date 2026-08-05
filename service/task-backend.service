@@ -3,8 +3,8 @@ Description=task-backend
 After=network.target
 
 [Service]
-User=www
-Group=www
+User=root
+Group=root
 Environment="disable_functions=exec,readdir,delfile,fileperms,copy,opendir,closedir,dir,chmod,mkdir,rmdir,unlink,putenv,passthru,system,chroot,chgrp,chown,shell_exec,popen,pcntl_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,imap_open,apache_setenv"
 ExecStart=/bin/sh -c 'php -ddisable_functions=$disable_functions /www/wwwroot/backend/php/cmd/task-backend.php'
 
@@ -15,6 +15,8 @@ StandardError=file:/tmp/backend-task-queue.error.log
 # RestartSec=3
 Restart=on-failure
 RestartSec=3
+StartLimitIntervalSec=60
+StartLimitBurst=5
 
 
 [Install]
