@@ -155,8 +155,8 @@ class BaseSwoole extends BaseObject{
         if (method_exists($application->request, 'setRequest')) $application->request->setRequest($request,$document_root);
         if (method_exists($application->response, 'setResponse')) $application->response->setResponse($response);
         $application->run();
-        Yii::$app=null;
-        unset($application);
+       // Yii::$app=null;
+      //  unset($application);
 
     }
 
