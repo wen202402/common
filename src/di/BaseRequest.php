@@ -103,13 +103,14 @@ class BaseRequest  extends \yii\web\Request{
         $_SERVER['HTTPS']            = $https ? 'on' : 'off';
 
         //    unset($_SERVER['PATH_INFO']);
-        $this->getSecureForwardedHeaderParts();
-        $this->getCookies();
-        $this->getAbsoluteUrl();
-        $this->getBodyParams();
-        $this->setRawBody($this->_request->rawContent() ?: '');
-        $this->getPathInfo();
-        $this->resetCounter();
+        $this->resolve();
+     //   $this->getSecureForwardedHeaderParts();
+     //   $this->getCookies();
+      //  $this->getAbsoluteUrl();
+      //  $this->getBodyParams();
+       $this->setRawBody($this->_request->rawContent() ?: '');
+      //  $this->getPathInfo();
+      //  $this->resetCounter();
         Yii::$app->response->clear();
     }
 
