@@ -149,15 +149,30 @@ class BaseSwoole extends BaseObject{
 
     public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
         $_SERVER['SCRIPT_NAME']     = $scriptName = $request->server['script_name'] ?? '/index.php';
-        $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
-        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);
-        $application = new Application($this->app);
-        if (method_exists($application->request, 'setRequest')) $application->request->setRequest($request,$document_root);
-        if (method_exists($application->response, 'setResponse')) $application->response->setResponse($response);
-        $application->run();
+        if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
+        if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
+        Yii::$app->run();
       //  Yii::$app=null;
       //  unset($application);
 
+    }
+
+
+    public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
+        $workerNum = (int)($server->setting['worker_num'] ?? 0);
+        $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
+
+        $this->startApp();
+        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
+    }
+
+
+    private function startApp(){
+        $_SERVER['SCRIPT_NAME']     = $scriptName ='/index.php';
+        $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
+        $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);
+        $app = new Application($this->app);
+        $app->init();
     }
 
 
@@ -269,15 +284,6 @@ class BaseSwoole extends BaseObject{
 
 
 
-
-
-
-    public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
-        $workerNum = (int)($server->setting['worker_num'] ?? 0);
-        $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
-
-        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
-    }
 
 
 
