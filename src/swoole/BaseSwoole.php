@@ -126,6 +126,28 @@ class BaseSwoole extends BaseObject{
 
 
 
+//SCRIPT_NAME=/index.php  SCRIPT_FILENAME=/home/ubuntux/Desktop/all/yii-docker/php/backend/web/index.php
+
+    public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
+        $this->startApp($request);
+        Yii::$app->response->isSent = false;
+        Yii::$app->response->clear();
+        if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
+        if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
+        Yii::$app->run();
+        Yii::$app=null;
+
+    }
+
+
+    public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
+        $workerNum = (int)($server->setting['worker_num'] ?? 0);
+        $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
+
+
+        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
+
+    }
 
 
 
@@ -136,7 +158,7 @@ class BaseSwoole extends BaseObject{
         $appRoot                        = ($docroot = rtrim($this->document_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) . $this->appName . DIRECTORY_SEPARATOR;
         $this->options['pid_file']      = $appRoot . 'runtime/swoole.pid';
         $this->options['log_file']      = $appRoot . 'runtime/swoole'.date('Y-m-d').'.log';
-        $this->options['worker_num']    = (int)(swoole_cpu_num() * $this->cpu) ?: 2;
+        $this->options['worker_num']    = (int)(swoole_cpu_num() * $this->cpu) ?: 1;
         $this->options['document_root'] = $appRoot . 'web';
     }
 
@@ -146,36 +168,6 @@ class BaseSwoole extends BaseObject{
 
 
 
-//SCRIPT_NAME=/index.php  SCRIPT_FILENAME=/home/ubuntux/Desktop/all/yii-docker/php/backend/web/index.php
-
-    public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response){
-        $this->startApp($request);
-
-        Yii::$app->response->isSent = false;
-        Yii::$app->response->clear();
-
-        if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
-        if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
-        Yii::$app->run();
-      //  Yii::$app=null;
-      //  unset($application);
-
-    }
-
-
-    public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
-        $workerNum = (int)($server->setting['worker_num'] ?? 0);
-        $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
-
-
-        //if ($workerId !== 0) return;
-      //  error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
-
-      //Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
-       // Timer::tick(6*60* 1000, function () {$this->actionFund(); });
-        $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
-
-    }
 
 
 

@@ -181,6 +181,7 @@
       <workItem from="1785928673039" duration="6550000" />
       <workItem from="1785947491146" duration="3504000" />
       <workItem from="1785956501419" duration="5569000" />
+      <workItem from="1785977249137" duration="3532000" />
     </task>
     <servers />
   </component>
@@ -207,12 +208,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>270</line>
+          <line>268</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/swoole/BaseSwoole.php</url>
-          <line>295</line>
+          <line>293</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
