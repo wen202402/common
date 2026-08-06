@@ -171,7 +171,7 @@ class BaseSwoole extends BaseObject{
         //if ($workerId !== 0) return;
       //  error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
 
-      //  Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
+      //Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
        // Timer::tick(6*60* 1000, function () {$this->actionFund(); });
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
 
