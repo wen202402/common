@@ -168,11 +168,11 @@ class BaseSwoole extends BaseObject{
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
 
 
-        if ($workerId !== 0) return;
-        error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
+        //if ($workerId !== 0) return;
+      //  error_log(__FUNCTION__."------------------ start----{$workerId}". date('Y-m-d H:i:s').PHP_EOL);
 
-        Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
-        Timer::tick(6*60* 1000, function () {$this->actionFund(); });
+      //  Timer::tick(15*60 * 1000, function ()  {$this->actionRibao();});
+       // Timer::tick(6*60* 1000, function () {$this->actionFund(); });
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
 
     }
@@ -193,8 +193,6 @@ class BaseSwoole extends BaseObject{
 
 
     private function startApp($request){
-
-     //  $_SERVER['SCRIPT_NAME']     = $scriptName =  '/index.php';
         $_SERVER['SCRIPT_NAME']     = $scriptName = $request?->server['script_name'] ?? '/index.php';
         $document_root=$this->document_root.DIRECTORY_SEPARATOR.$this->appName;
         $_SERVER['SCRIPT_FILENAME'] = Yii::getAlias('@webroot'.$scriptName, false) ?: ($document_root. $scriptName);

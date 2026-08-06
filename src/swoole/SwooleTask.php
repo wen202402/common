@@ -1,0 +1,212 @@
+<?php
+
+namespace wen202402\common\swoole;
+
+use co;
+use Swoole\Coroutine;
+use Swoole\Coroutine\System;
+use wen202402\common\helper\EnvHelper;
+use Yii;
+use yii\console\Application;
+use yii\helpers\ArrayHelper;
+
+class SwooleTask{
+
+
+    private string $rootPath;
+    public bool $force=false;
+    public string $libsPath;
+    public string $targetDbName = '';
+    public string $sqlGzPath;
+    private string $lockFile;
+    private string $importMarkFile;
+    private Application $app;
+    public  $config;
+
+    public function __construct($config,$rootPath){
+        $this->config = $config;
+        $this->rootPath = $rootPath;
+        $this->libsPath = $this->rootPath . DIRECTORY_SEPARATOR;
+        $this->targetDbName = EnvHelper::getDbName();
+        empty($this->sqlGzPath)&& $this->sqlGzPath =  $this->libsPath.  $this->targetDbName.'.sql.gz';
+        $this->lockFile =$this->libsPath . '.init.lock';
+        $this->importMarkFile = $this->libsPath. ".import_mark";
+        if (empty($config))$this->config= ArrayHelper::merge(
+            require $this->libsPath . 'common/config/main.php',
+            require $this->libsPath . 'common/config/main-local.php',
+            require $this->libsPath . 'console/config/main.php',
+            require $this->libsPath . 'console/config/main-local.php'
+        );
+    }
+
+
+
+
+    public function run(): void{
+        \Swoole\Runtime::enableCoroutine(true);
+        Coroutine::create([$this, 'importX']);
+        $this->app =$app= new Application($this->config);
+
+        Coroutine::create(function () use ($app) {$this->startYiiQueue($app);});
+
+    }
+
+
+
+
+
+
+
+
+    public function importX(){
+        $this->checkdbImportDB($this->targetDbName, $this->sqlGzPath,$this->force);
+
+    }
+
+
+
+
+
+
+
+
+    public function startYiiQueue(Application $app){
+        $queue = $app?->queue;
+        while (true) {
+            try {
+                ($job = $queue->dequeue(5)) ? $queue->execute($job): Co::sleep(1);       // 示例：最多等5秒      // $job = $queue->dequeue(); // 按实际改
+            } catch (\Throwable $e) {
+                //    Yii::error($e->getMessage(), 'queue');
+                error_log($e->getMessage());
+                Co::sleep(1);
+            }
+        }
+    }
+
+
+
+
+
+    public function startVariable(){
+        try {
+            error_log(__FUNCTION__.' ----start: ' . date('Y-m-d H:i:s'));
+            $exitCode = $this->app->runAction('cron/contrab/variable');
+            error_log(__FUNCTION__.' end: ' . $exitCode);
+        } catch (\Throwable $e) {
+            error_log(__FUNCTION__.'-----error: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
+        }
+    }
+
+
+
+
+
+    public function startRibao(){
+        try {
+            error_log(__FUNCTION__.'------start: ' . date('Y-m-d H:i:s'));
+            $exitCode = $this->app->runAction('cron/contrab/ribao',['order']);
+        } catch (\Throwable $e) {
+            error_log('ribao error: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
+        }
+    }
+
+
+
+    private function createRootPdo(): \PDO{
+        error_log(__FUNCTION__.'---------------start: ' );
+        $host = EnvHelper::getDbHost();
+        $port = EnvHelper::getDbPort();
+        //   error_log($dsn="mysql:host={$host};port={$port};charset=utf8mb4". EnvHelper::getBakRoot(). EnvHelper::getBakPassword());
+        return new \PDO("mysql:host={$host};port={$port};charset=utf8mb4", EnvHelper::getBakRoot(), EnvHelper::getBakPassword(), [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+    }
+
+
+    private function createDatabase($targetDbName){
+        error_log(__FUNCTION__."---------------start-------------");
+        $stmt = ($rootPdo = $this->createRootPdo())->prepare('select 1 from information_schema.SCHEMATA WHERE SCHEMA_NAME = :db limit 1');
+        $stmt->execute([':db' => $targetDbName]);
+        if (($exists = (bool)$stmt->fetchColumn())) return $exists;
+        $rootPdo->exec("create database `{$targetDbName}` character set utf8mb4 collate utf8mb4_unicode_ci");
+        $this->ensureUserAndGrantAll($targetDbName, (string)EnvHelper::getDbUsername(), (string)EnvHelper::getDbPassword(), '%');
+        error_log(__FUNCTION__."--------------------end----database created: {$targetDbName}");
+        return $exists;
+    }
+
+
+
+
+    private function checkdbImportDB(string $targetDbName, string $sqlGzPath, bool $force = false): bool{
+        error_log(__FUNCTION__."---------------start-------------");
+
+        if (!file_exists($sqlGzPath)) return   error_log("sql.gz not found: {$sqlGzPath}");
+        if (!Yii::$app->mutex->acquire($kmutex=__FUNCTION__)) {
+            error_log(__CLASS__."未获取到锁------".$kmutex.PHP_EOL)  ;
+            return false;
+        }
+        if (!$force && file_exists($this->importMarkFile)) return  error_log("import already marked, skip: {$this->importMarkFile} (rm -f {$this->importMarkFile} to re-import)");
+        $this->importDatabase($targetDbName, $sqlGzPath,  $exists=$this->createDatabase($targetDbName),$force);
+
+        Yii::$app->mutex->release($kmutex);
+        return true;
+
+
+    }
+
+
+    private function importDatabase(string $targetDbName, string $sqlGzPath,bool $exists,bool $force=false): bool{
+        error_log(__FUNCTION__."---------------start-------------");
+        if ($exists && !$this->force) return error_log(__FUNCTION__."------Database exists skip : {$targetDbName}");
+        $host = EnvHelper::getDbHost();
+        $port = EnvHelper::getDbPort();
+        $user = EnvHelper::getBakRoot();
+        $pass = EnvHelper::getBakPassword();
+        if (!file_exists($mysqlBin = '/usr/bin/mysql'))                         throw new \RuntimeException("mysql client not found: {$mysqlBin}");
+        if (!file_exists($zcatBin = '/usr/bin/zcat')) $zcatBin = '/bin/zcat';
+        if (!file_exists($zcatBin))                                             throw new \RuntimeException("/usr/bin/zcat and /bin/zcat not found.  sudo apt-get install -y gzip");
+        $hostArg = '--host=' . escapeshellarg((string)$host);
+        $portArg = '--port=' . escapeshellarg((string)$port);
+        $dbArg = '--database=' . escapeshellarg((string)$targetDbName);
+        $userArg = '--user=' . escapeshellarg((string)$user);
+        $passArg = '--password=' . escapeshellarg((string)$pass);
+        $cmd = 'bash -c ' . escapeshellarg($zcatBin . ' ' . escapeshellarg($sqlGzPath) . ' | ' . $mysqlBin . ' ' . $hostArg . ' ' . $portArg . ' ' . $dbArg . ' ' . $userArg . ' ' . $passArg);
+        error_log(__FUNCTION__."---------------Import starting db={$targetDbName}");
+
+        if (false!==($exitCode = System::exec($cmd)) ) {
+            error_log(__FUNCTION__."-----------------end-----------------Import success  db={$targetDbName}");
+            @file_put_contents($this->importMarkFile, date('c'));
+            return true;
+        }
+
+        throw new \RuntimeException(__FUNCTION__."------------------------------Import failed tail=".$tail = !empty($exitCode) ? implode("\n", array_slice($exitCode, -50)) : '');
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private function ensureUserAndGrantAll(string $dbName, string $user, string $pass, string $hostPattern = '%'): void{
+        $rootPdo = $this->createRootPdo();
+        $userIdent = $rootPdo->quote($user);           // 'user'
+        $hostIdent = $rootPdo->quote($hostPattern);   // '%'
+        $userHost  = "{$userIdent}@{$hostIdent}";     // 'user'@'%'
+        $rootPdo->exec("CREATE USER IF NOT EXISTS {$userHost} IDENTIFIED BY " . $rootPdo->quote($pass));
+        $rootPdo->exec("GRANT ALL PRIVILEGES ON `{$dbName}`.* TO {$userHost}");
+        $rootPdo->exec("FLUSH PRIVILEGES");
+
+        error_log("Ensured {$user}@{$hostPattern} and granted ALL on {$dbName}.*");
+    }
+
+}
