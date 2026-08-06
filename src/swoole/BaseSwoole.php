@@ -133,6 +133,7 @@ class BaseSwoole extends BaseObject{
         Yii::$app->response->isSent = false;
         Yii::$app->response->clear();
         if (method_exists(Yii::$app->request, 'setRequest')) Yii::$app->request->setRequest($request,$this->document_root);
+        $response->header('Server', '');
         if (method_exists(Yii::$app->response, 'setResponse')) Yii::$app->response->setResponse($response);
         Yii::$app->run();
         Yii::$app=null;
@@ -143,8 +144,6 @@ class BaseSwoole extends BaseObject{
     public function onWorkerStart(\Swoole\Http\Server $server, int $workerId): void{
         $workerNum = (int)($server->setting['worker_num'] ?? 0);
         $workerType = $workerId >= $workerNum ? 'task-worker' : 'worker';
-
-
         $this->log(sprintf('%s started. id=%d pid=%d', $workerType, $workerId, getmypid()),'info');
 
     }
