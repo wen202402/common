@@ -9,8 +9,8 @@ Environment="disable_functions=passthru,exec,system,putenv,chroot,chgrp,chown,sh
 ExecStart=php -ddisable_functions=${disable_functions} /www/wwwroot/api/php/swoole-api.php
 StandardOutput=file:/tmp/swoole-api.log
 StandardError=file:/tmp/swoole-api.error.log
-ExecReload=/bin/systemctl restart swoole-backend.service
-
+#ExecReload=/bin/systemctl restart swoole-backend.service
+ExecReload=/bin/kill -s USR1 $MAINPID
 
 [Install]
 WantedBy=multi-user.target

@@ -15,7 +15,7 @@ Restart=on-failure
 RestartSec=3
 ExecReload=/bin/systemctl restart swoole-backend.service
 
-
+ExecReload=/bin/kill -s USR1 $MAINPID
 
 [Install]
 WantedBy=multi-user.target
