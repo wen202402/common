@@ -13,7 +13,7 @@ StandardError=file:/tmp/swoole-backend.error.log
 # RestartSec=3
 Restart=on-failure
 RestartSec=3
-
+ExecReload=/bin/systemctl restart swoole-backend.service
 
 
 
